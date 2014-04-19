@@ -212,10 +212,11 @@ containing a value of this type.
     }
     public static final class id {
         public static final int hybrid=0x7f050004;
-        public static final int item_detail=0x7f050007;
-        public static final int item_detail_container=0x7f050005;
-        public static final int item_list=0x7f050006;
-        public static final int menu_settings=0x7f050008;
+        public static final int item_detail=0x7f050008;
+        public static final int item_detail_container=0x7f050006;
+        public static final int item_list=0x7f050007;
+        public static final int main_map_view=0x7f050005;
+        public static final int menu_settings=0x7f050009;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
         public static final int satellite=0x7f050002;
