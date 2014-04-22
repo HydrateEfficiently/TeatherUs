@@ -212,11 +212,7 @@ containing a value of this type.
     }
     public static final class id {
         public static final int hybrid=0x7f050004;
-        public static final int item_detail=0x7f050008;
-        public static final int item_detail_container=0x7f050006;
-        public static final int item_list=0x7f050007;
         public static final int main_map_view=0x7f050005;
-        public static final int menu_settings=0x7f050009;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
         public static final int satellite=0x7f050002;
@@ -226,29 +222,7 @@ containing a value of this type.
         public static final int google_play_services_version=0x7f070000;
     }
     public static final class layout {
-        public static final int activity_item_detail=0x7f030000;
-        /** 
-    Layout alias to replace the single-pane version of the layout with a
-    two-pane version on Large screens.
-
-    For more on layout aliases, see:
-    http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
-    
-
-    Layout alias to replace the single-pane version of the layout with a
-    two-pane version on Large screens.
-
-    For more on layout aliases, see:
-    http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
-    
-         */
-        public static final int activity_item_list=0x7f030001;
-        public static final int activity_item_twopane=0x7f030002;
-        public static final int activity_navigation=0x7f030003;
-        public static final int fragment_item_detail=0x7f030004;
-    }
-    public static final class menu {
-        public static final int activity_navigation=0x7f090000;
+        public static final int activity_navigation=0x7f030000;
     }
     public static final class string {
         public static final int app_name=0x7f06001b;

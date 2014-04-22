@@ -3,12 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".NavigationActivity" >
-
-    <com.google.android.maps.MapView
-        android:id="@+id/main_map_view"
-        android:enabled="true"
-        android:clickable="true"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+    
+    <fragment
+	    class="com.google.android.gms.maps.MapFragment"
+	    android:id="@+id/main_map_view"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"/>
 
 </RelativeLayout>
