@@ -8,21 +8,20 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
-public class GoogleMapWrapper implements IMap {
+public class Map {
 	
 	private GoogleMap map;
 	
-	public GoogleMapWrapper(Fragment fragment) {
+	public Map(Fragment fragment) {
 		map = ((MapFragment)fragment).getMap();
+		map.setMyLocationEnabled(true);
 	}
 
-	@Override
 	public void setLocation(Location location) {
 		map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
 	}
 
-	@Override
 	public void zoomTo(float zoom) {
 		map.moveCamera(CameraUpdateFactory.zoomTo(zoom));
-	}
+	}	
 }
