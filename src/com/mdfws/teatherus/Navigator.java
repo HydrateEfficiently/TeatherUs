@@ -1,51 +1,44 @@
 package com.mdfws.teatherus;
 
-import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.model.LatLng;
-import com.mdfws.teatherus.Directions.AsyncDirectionsRequest;
-import com.mdfws.teatherus.Directions.Directions;
-import com.mdfws.teatherus.Directions.AsyncDirectionsRequest.DirectionsRetrieved;
+import com.mdfws.teatherus.directions.AsyncDirectionsRequest;
+import com.mdfws.teatherus.directions.Directions;
+import com.mdfws.teatherus.directions.AsyncDirectionsRequest.DirectionsRetrieved;
+import com.mdfws.teatherus.positioning.IGps;
+import com.mdfws.teatherus.positioning.IGps.OnTickHandler;
 
 import android.app.Activity;
 import android.location.Location;
 
-public class Navigator implements LocationListener {
-	
-	public static final int UPDATE_INTERVAL_MS = 1000;
+public class Navigator {
 	
 	private Map map;
-	private LocationClient locationClient;
+	private IGps gps;
 	private LatLng currentLocation;
-
-	public Navigator(Activity activity, Map map, LocationClient locationClient) {
-		this.map = map;
-		this.locationClient = locationClient;
-		map.zoomTo(15);
+	private double currentBearing;
+	private boolean isNavigating = false;
+	
+	public Navigator(Activity activity, IGps gps) {
+		this.gps = gps;
+		gps.onTick(new OnTickHandler() {
+			@Override
+			public void invoke(Location location) {
+				updateLocation(location);
+			}
+		});
+		gps.enableTracking();
+		gps.forceTick();
+		
+		map = new Map(activity.getFragmentManager().findFragmentById(R.id.main_map_view), currentLocation);
 	}
 	
-	public boolean isReady() {
-		return this.locationClient != null && this.locationClient.isConnected();
-	}
-	
-	public void locationClientReady() {
-		listenForLocationUpdates();
-		Location lastLocation = this.locationClient.getLastLocation();
-		this.currentLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-	}
-	
-	private void listenForLocationUpdates() {
-		LocationRequest request = LocationRequest.create();
-		request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-		request.setInterval(UPDATE_INTERVAL_MS);
-		this.locationClient.requestLocationUpdates(request, this);
-	}
-	
-	@Override
-	public void onLocationChanged(Location location) {
-		this.currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-		this.map.setLocation(location);
+	public void updateLocation(Location location) {
+		currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+		currentBearing = location.hasBearing() ? location.getBearing() : 0;
+		if (map != null) {
+			map.setLocation(this.currentLocation);
+			map.setBearing(this.currentBearing);
+		}
 	}
 	
 	public void navigateTo(LatLng latLng) {
@@ -59,6 +52,9 @@ public class Navigator implements LocationListener {
 	}
 	
 	private void startNavigation(Directions directions) {
-		
+		if (!isNavigating) {
+			map.setMode(Map.Mode.NAVIGATING);
+			isNavigating = true;
+		}
 	}
 }
