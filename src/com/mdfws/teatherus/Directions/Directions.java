@@ -14,6 +14,7 @@ public class Directions {
 	
 	private ArrayList<Direction> directions;
 	private ArrayList<Point> points;
+	private LatLng endLocation;
 	
 	public Directions(String jsonString) throws JSONException {
 		JSONObject route = new JSONObject(jsonString).getJSONArray("routes").getJSONObject(0); // Only one route supported
@@ -28,6 +29,7 @@ public class Directions {
 		for (int i = 0; i < length; i++) {
 			directions.add(new Direction(steps.getJSONObject(i)));
 		}
+		endLocation = directions.get(length - 1).getEnd();
 	}
 	
 	private void createPoints() {
@@ -42,7 +44,7 @@ public class Directions {
 		for (int i = directions.size() - 1; i >= 0; i--) {
 			currentDirection = directions.get(i);
 			List<LatLng> currentDirectionPoints = currentDirection.getPoints();
-			for (int j = currentDirectionPoints.size() - 1; j >= 0; j--) {
+			for (int j = currentDirectionPoints.size() - 2; j >= 0; j--) {
 				currentPoint = createPoint(currentDirectionPoints.get(j), prevPoint, currentDirection);
 				points.add(0, currentPoint);
 				prevPoint = currentPoint;
@@ -53,6 +55,7 @@ public class Directions {
 	
 	private Point createLastPoint() {
 		return new Point() {{
+			location = endLocation;
 			distanceToCurrentDirectionMeters = 0;
 			timeToCurrentDirectionMinutes = 0;
 			distanceToNextDirectionMeters = 0;
@@ -65,15 +68,16 @@ public class Directions {
 		}};
 	}
 	
-	private Point createPoint(LatLng location, final Point next, final Direction currentDirection) {
-		final double distanceToNext = Geom.calculateDistance(location, next.location);
-		final boolean isNewDirection = next.direction != currentDirection;
+	private Point createPoint(final LatLng loc, final Point next, final Direction dir) {
+		final double distanceToNext = Geom.calculateDistance(loc, next.location);
+		final boolean isNewDirection = next.direction != dir;
 		return new Point() {{
-			distanceToCurrentDirectionMeters = isNewDirection ? 0 : nextPoint.distanceToCurrentDirectionMeters + distanceToNext;
-			distanceToNextDirectionMeters = isNewDirection ? 0 : nextPoint.distanceToNextDirectionMeters + distanceToNext;
-			distanceToArrivalMeters = nextPoint.distanceToArrivalMeters + distanceToNext;
-			direction = currentDirection;
-			nextDirection = isNewDirection ? nextPoint.direction : nextPoint.nextDirection;
+			location = loc;
+			distanceToCurrentDirectionMeters = isNewDirection ? 0 : next.distanceToCurrentDirectionMeters + distanceToNext;
+			distanceToNextDirectionMeters = isNewDirection ? next.distanceToCurrentDirectionMeters + distanceToNext : next.distanceToNextDirectionMeters + distanceToNext;
+			distanceToArrivalMeters = next.distanceToArrivalMeters + distanceToNext;
+			direction = dir;
+			nextDirection = isNewDirection ? next.direction : next.nextDirection;
 			nextPoint = next;
 		}};
 	}

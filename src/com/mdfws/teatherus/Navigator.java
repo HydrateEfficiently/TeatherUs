@@ -1,9 +1,11 @@
 package com.mdfws.teatherus;
 
+
 import com.google.android.gms.maps.model.LatLng;
 import com.mdfws.teatherus.directions.AsyncDirectionsRequest;
 import com.mdfws.teatherus.directions.Directions;
 import com.mdfws.teatherus.directions.AsyncDirectionsRequest.DirectionsRetrieved;
+import com.mdfws.teatherus.map.Map;
 import com.mdfws.teatherus.positioning.IGps;
 import com.mdfws.teatherus.positioning.IGps.OnTickHandler;
 
@@ -53,7 +55,8 @@ public class Navigator {
 	
 	private void startNavigation(Directions directions) {
 		if (!isNavigating) {
-			map.setMode(Map.Mode.NAVIGATING);
+			map.setProjectionMode(Map.ProjectionMode.THREE_DIMENSIONAL);
+			map.lockUi();
 			isNavigating = true;
 		}
 	}
