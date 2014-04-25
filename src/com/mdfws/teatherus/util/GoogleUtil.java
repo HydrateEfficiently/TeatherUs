@@ -7,7 +7,7 @@ import android.location.Location;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class Google {
+public class GoogleUtil {
 	
 	public static List<LatLng> decodePolyline(String encoded) {
         List<LatLng> poly = new ArrayList<LatLng>();

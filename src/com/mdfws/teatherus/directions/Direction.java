@@ -4,9 +4,8 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.google.android.gms.maps.model.LatLng;
-import com.mdfws.teatherus.util.Google;
+import com.mdfws.teatherus.util.GoogleUtil;
 
 public class Direction {
 	
@@ -19,7 +18,7 @@ public class Direction {
 		text = step.getString("html_instructions");
 		start = getLatLng(step.getJSONObject("start_location"));
 		end = getLatLng(step.getJSONObject("start_location"));
-		points = Google.decodePolyline(step.getJSONObject("polyline").getString("points"));
+		points = GoogleUtil.decodePolyline(step.getJSONObject("polyline").getString("points"));
 		points.add(0, start);
 		points.add(points.size(), end);
 	}

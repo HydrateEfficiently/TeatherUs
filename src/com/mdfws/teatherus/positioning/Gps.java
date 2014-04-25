@@ -1,11 +1,10 @@
 package com.mdfws.teatherus.positioning;
 
 import android.location.Location;
-
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.mdfws.teatherus.util.Google;
+import com.mdfws.teatherus.util.GoogleUtil;
 
 public class Gps extends AbstractGps implements LocationListener {
 	
@@ -45,7 +44,7 @@ public class Gps extends AbstractGps implements LocationListener {
 	@Override
 	public void onLocationChanged(final Location loc) {
 		onTickHandler.invoke(new Position() {{
-			location = Google.toLatLng(loc);
+			location = GoogleUtil.toLatLng(loc);
 			bearing = loc.hasBearing() ? loc.getBearing() : 0;
 		}});
 	}

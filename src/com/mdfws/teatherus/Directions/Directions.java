@@ -2,13 +2,11 @@ package com.mdfws.teatherus.directions;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.google.android.gms.maps.model.LatLng;
-import com.mdfws.teatherus.util.Geom;
+import com.mdfws.teatherus.util.GisUtil;
 
 public class Directions {
 	
@@ -67,7 +65,7 @@ public class Directions {
 	}
 	
 	private Point createPoint(final LatLng loc, final Point next, final Direction dir) {
-		final double distanceToNext = Geom.calculateDistance(loc, next.location);
+		final double distanceToNext = GisUtil.distanceInMeters(loc, next.location);
 		final boolean isNewDirection = next.direction != dir;
 		return new Point() {{
 			location = loc;
