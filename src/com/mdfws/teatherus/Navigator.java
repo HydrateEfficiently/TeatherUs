@@ -22,7 +22,7 @@ public class Navigator {
 	private Map map;
 	private IGps gps;
 	private LatLng currentLocation;
-	private double currentBearing;
+	private float currentBearing;
 	private boolean isNavigating = false;
 	
 	public Navigator(Activity activity, IGps gps) {
@@ -41,10 +41,11 @@ public class Navigator {
 	
 	public void updateLocation(Position position) {
 		currentLocation = position.location;
-		currentBearing = position.bearing;
+		currentBearing = (float)position.bearing;
 		if (map != null) {
-			map.setLocation(this.currentLocation);
-			map.setBearing(this.currentBearing);
+			map.setLocation(currentLocation);
+			map.setBearing(currentBearing);
+			map.invalidate();
 		}
 	}
 	
