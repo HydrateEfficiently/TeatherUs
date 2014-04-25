@@ -3,6 +3,8 @@ package com.mdfws.teatherus.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.location.Location;
+
 import com.google.android.gms.maps.model.LatLng;
 
 public class Google {
@@ -38,5 +40,9 @@ public class Google {
         }
  
         return poly;
+	}
+	
+	public static LatLng toLatLng(Location location) {
+		return new LatLng(location.getLatitude(), location.getLongitude());
 	}
 }

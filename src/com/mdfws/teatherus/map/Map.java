@@ -1,9 +1,6 @@
 package com.mdfws.teatherus.map;
 
 import android.app.Fragment;
-import android.location.Location;
-
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;

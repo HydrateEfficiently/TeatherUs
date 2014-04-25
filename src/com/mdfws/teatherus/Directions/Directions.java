@@ -33,12 +33,11 @@ public class Directions {
 	}
 	
 	private void createPoints() {
-		Direction currentDirection = null;
-		Direction nextDirection = null;
+		Direction currentDirection;
+		Point currentPoint;
+		Point prevPoint = createLastPoint();
 		
 		points = new ArrayList<Point>();
-		Point currentPoint = null;
-		Point prevPoint = createLastPoint();
 		points.add(prevPoint);
 		
 		for (int i = directions.size() - 1; i >= 0; i--) {
@@ -49,7 +48,6 @@ public class Directions {
 				points.add(0, currentPoint);
 				prevPoint = currentPoint;
 			}
-			nextDirection = currentDirection;
 		}
 	}
 	

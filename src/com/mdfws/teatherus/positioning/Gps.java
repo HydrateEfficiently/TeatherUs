@@ -5,13 +5,13 @@ import android.location.Location;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.mdfws.teatherus.util.Google;
 
-public class Gps implements IGps, LocationListener {
+public class Gps extends AbstractGps implements LocationListener {
 	
 	private static final int UPDATE_INTERVAL_MS = 1000;
 	
 	private LocationClient locationClient;
-	private OnTickHandler onTickHandler;
 	private boolean isTrackingEnabled = false;
 	
 	public Gps(LocationClient locationClient) {
@@ -38,17 +38,15 @@ public class Gps implements IGps, LocationListener {
 	}
 	
 	@Override
-	public void onTick(OnTickHandler onTickHandler) {
-		this.onTickHandler = onTickHandler;
-	}
-	
-	@Override
 	public void forceTick() {
 		onLocationChanged(locationClient.getLastLocation());		
 	}
 	
 	@Override
-	public void onLocationChanged(Location location) {
-		this.onTickHandler.invoke(location);
+	public void onLocationChanged(final Location loc) {
+		onTickHandler.invoke(new Position() {{
+			location = Google.toLatLng(loc);
+			bearing = loc.hasBearing() ? loc.getBearing() : 0;
+		}});
 	}
 }

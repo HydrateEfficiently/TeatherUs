@@ -1,16 +1,21 @@
 package com.mdfws.teatherus;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.mdfws.teatherus.directions.AsyncDirectionsRequest;
 import com.mdfws.teatherus.directions.Directions;
 import com.mdfws.teatherus.directions.AsyncDirectionsRequest.DirectionsRetrieved;
+import com.mdfws.teatherus.directions.Point;
 import com.mdfws.teatherus.map.Map;
 import com.mdfws.teatherus.positioning.IGps;
 import com.mdfws.teatherus.positioning.IGps.OnTickHandler;
+import com.mdfws.teatherus.positioning.Position;
+import com.mdfws.teatherus.positioning.SimulatedGps;
 
 import android.app.Activity;
-import android.location.Location;
 
 public class Navigator {
 	
@@ -24,8 +29,8 @@ public class Navigator {
 		this.gps = gps;
 		gps.onTick(new OnTickHandler() {
 			@Override
-			public void invoke(Location location) {
-				updateLocation(location);
+			public void invoke(Position position) {
+				updateLocation(position);
 			}
 		});
 		gps.enableTracking();
@@ -34,9 +39,9 @@ public class Navigator {
 		map = new Map(activity.getFragmentManager().findFragmentById(R.id.main_map_view), currentLocation);
 	}
 	
-	public void updateLocation(Location location) {
-		currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-		currentBearing = location.hasBearing() ? location.getBearing() : 0;
+	public void updateLocation(Position position) {
+		currentLocation = position.location;
+		currentBearing = position.bearing;
 		if (map != null) {
 			map.setLocation(this.currentLocation);
 			map.setBearing(this.currentBearing);
@@ -55,9 +60,26 @@ public class Navigator {
 	
 	private void startNavigation(Directions directions) {
 		if (!isNavigating) {
-			map.setProjectionMode(Map.ProjectionMode.THREE_DIMENSIONAL);
-			map.lockUi();
 			isNavigating = true;
+			prepareMapForNavigation();
+			
+			if (gps instanceof SimulatedGps) {
+				simulateDirections(directions);
+			}
 		}
+	}
+	
+	private void prepareMapForNavigation() {
+		map.setProjectionMode(Map.ProjectionMode.THREE_DIMENSIONAL);
+		map.lockUi();
+	}
+	
+	private void simulateDirections(Directions directions) {
+		List<Point> points = directions.getPoints();
+		List<LatLng> path = new ArrayList<LatLng>();
+		for (int i = 0; i < points.size(); i++) {
+			path.add(points.get(i).location);
+		}
+		((SimulatedGps)gps).followPath(path);
 	}
 }
