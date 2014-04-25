@@ -7,6 +7,8 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.mdfws.teatherus.positioning.Gps;
 import com.mdfws.teatherus.positioning.IGps;
+import com.mdfws.teatherus.positioning.SimulatedGps;
+import com.mdfws.teatherus.util.GoogleUtil;
 
 import android.app.Activity;
 import android.content.IntentSender.SendIntentException;
@@ -44,7 +46,8 @@ public class NavigationActivity extends Activity implements
 
 	@Override
 	public void onConnected(Bundle dataBundle) {
-		gps = new Gps(locationClient);
+		// gps = new Gps(locationClient);
+		gps = new SimulatedGps(GoogleUtil.toLatLng(locationClient.getLastLocation()));
 		navigator = new Navigator(this, gps);
 		navigator.navigateTo(new LatLng(-43.530707 ,172.641946));
 	}

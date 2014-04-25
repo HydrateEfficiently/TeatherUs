@@ -17,6 +17,7 @@ public class SimulatedGps extends AbstractGps {
 	
 	private LatLng currentLocation;
 	private double currentBearing;
+	private long currentTime;
 	
 	public SimulatedGps(LatLng location) {
 		currentLocation = location;
@@ -28,13 +29,17 @@ public class SimulatedGps extends AbstractGps {
 
 			@Override
 			protected Void doInBackground(Void... params) {
+				long travelTime = MAX_TICK_MS;
+				currentTime = System.currentTimeMillis();
+				
 				while (path.size() > 0) {
-					long travelTime = tick(path);
 					try {
 						Thread.sleep(travelTime);
 					} catch (InterruptedException ex) {
 						ex.printStackTrace();
 					}
+					travelTime = tick(path);
+					publishProgress();
 				}
 				return null;
 			}
@@ -52,11 +57,9 @@ public class SimulatedGps extends AbstractGps {
 	
 	private long tick(List<LatLng> remainingPath) {
 		LatLng nextLocation = remainingPath.get(0);
-		long currentTime = System.currentTimeMillis();
 		
-		long newCurrentTime = System.currentTimeMillis();
-		long timePassedMillisconds = newCurrentTime - currentTime;
-		currentTime = newCurrentTime;
+		long newTime = System.currentTimeMillis();
+		long timePassedMillisconds = newTime - currentTime;
 		
 		double maxTravelDistance = (timePassedMillisconds / S_TO_MS) * SPEED_LIMIT_MPS;
 		double distanceToNextPoint = GisUtil.distanceInMeters(currentLocation, nextLocation);
@@ -64,7 +67,7 @@ public class SimulatedGps extends AbstractGps {
 		
 		long travelTime;
 		double travelDistance;
-		if (maxTravelDistance > distanceToNextPoint) {
+		if (maxTravelDistance >= distanceToNextPoint) {
 			remainingPath.remove(0);
 			travelDistance = maxTravelDistance - distanceToNextPoint;
 			travelTime = (long)(travelDistance / SPEED_LIMIT_MPS * S_TO_MS);
@@ -77,6 +80,7 @@ public class SimulatedGps extends AbstractGps {
 		
 		currentLocation = newLocation;
 		currentBearing = newBearing;
+		currentTime = newTime;
 			
 		return travelTime;
 	}
