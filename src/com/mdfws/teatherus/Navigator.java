@@ -4,7 +4,9 @@ package com.mdfws.teatherus;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.mdfws.teatherus.directions.AsyncDirectionsRequest;
 import com.mdfws.teatherus.directions.Directions;
 import com.mdfws.teatherus.directions.AsyncDirectionsRequest.DirectionsRetrieved;
@@ -19,10 +21,11 @@ import android.app.Activity;
 
 public class Navigator {
 	
+	private MapFragment mapFragment;
 	private Map map;
+	private Marker navMarker;
 	private IGps gps;
-	private LatLng currentLocation;
-	private float currentBearing;
+	private Position currentPosition;
 	private boolean isNavigating = false;
 	
 	public Navigator(Activity activity, IGps gps) {
@@ -36,21 +39,27 @@ public class Navigator {
 		gps.enableTracking();
 		gps.forceTick();
 		
-		map = new Map(activity.getFragmentManager().findFragmentById(R.id.main_map_view), currentLocation);
+		mapFragment = (MapFragment)activity.getFragmentManager().findFragmentById(R.id.main_map_view);
+		map = new Map(mapFragment, currentPosition.location);
 	}
 	
-	public void updateLocation(Position position) {
-		currentLocation = position.location;
-		currentBearing = (float)position.bearing;
-		if (map != null) {
-			map.setLocation(currentLocation);
-			map.setBearing(currentBearing);
-			map.invalidate();
+	private void initMap(Activity activity) {
+		
+	}
+	
+	public void updateLocation(Position newPosition) {
+		int timeSinceLast = currentPosition == null || currentPosition.timestamp == 0 ? 1 :
+			(int)(newPosition.timestamp - currentPosition.timestamp);
+		if (map != null) {		
+			map.setLocation(newPosition.location);
+			map.setBearing((float)newPosition.bearing);
+			map.invalidate(timeSinceLast);
 		}
+		currentPosition = newPosition;
 	}
 	
 	public void navigateTo(LatLng latLng) {
-		AsyncDirectionsRequest request = new AsyncDirectionsRequest(this.currentLocation, latLng);
+		AsyncDirectionsRequest request = new AsyncDirectionsRequest(currentPosition.location, latLng);
 		request.getDirections(new DirectionsRetrieved() {
 			@Override
 			public void invoke(Directions directions) {

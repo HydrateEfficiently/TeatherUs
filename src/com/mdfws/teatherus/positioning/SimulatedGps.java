@@ -2,6 +2,7 @@ package com.mdfws.teatherus.positioning;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -13,7 +14,7 @@ public class SimulatedGps extends AbstractGps {
 	private final double KPH_TO_MPS = 0.277778;
 	private final double SPEED_LIMIT_MPS = SPEED_LIMIT_KPH * KPH_TO_MPS;
 	private final double S_TO_MS = 1000;
-	private final int MAX_TICK_MS = 1000;
+	private final int MAX_TICK_MS = 5000;
 	
 	private LatLng currentLocation;
 	private double currentBearing;
@@ -38,7 +39,7 @@ public class SimulatedGps extends AbstractGps {
 					} catch (InterruptedException ex) {
 						ex.printStackTrace();
 					}
-					travelTime = tick(path);
+					travelTime = advancePosition(path);
 					publishProgress();
 				}
 				return null;
@@ -49,13 +50,14 @@ public class SimulatedGps extends AbstractGps {
 				onTickHandler.invoke(new Position() {{
 					location = currentLocation;
 					bearing = currentBearing;
+					timestamp = currentTime;
 				}});
 			}
 		};
 		tickLoopTask.execute();
 	}
 	
-	private long tick(List<LatLng> remainingPath) {
+	private long advancePosition(List<LatLng> remainingPath) {
 		LatLng nextLocation = remainingPath.get(0);
 		
 		long newTime = System.currentTimeMillis();
@@ -104,6 +106,7 @@ public class SimulatedGps extends AbstractGps {
 		onTickHandler.invoke(new Position() {{
 			location = currentLocation;
 			bearing = currentBearing;
+			timestamp = currentTime;
 		}});
 	}
 }

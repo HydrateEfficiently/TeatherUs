@@ -5,8 +5,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class Map {
 	
@@ -15,11 +17,13 @@ public class Map {
 		THREE_DIMENSIONAL
 	}
 	
+	private static final int MAP_PADDING = 100;
 	private static final float TWO_DIMENSIONAL_TILT = 0;
 	private static final float TWO_DIMENSIONAL_BEARING = 0;
 	private static final float THREE_DIMENSIONAL_TILT = 45;
 	private static final float INIT_TWO_DIMENSIONAL_ZOOM = 3;
 	private static final float INIT_THREE_DIMENSIONAL_ZOOM = 18;
+	private static final int PROJECTION_CHANGE_ANIMATION_TIME = 1000;
 	
 	private GoogleMap map;
 	private UiSettings mapUiSettings;
@@ -31,6 +35,7 @@ public class Map {
 	
 	public Map(Fragment fragment, LatLng initialLocation) {
 		map = ((MapFragment)fragment).getMap();
+		map.setPadding(MAP_PADDING, MAP_PADDING, MAP_PADDING, MAP_PADDING);
 		initMapUiSettings();
 		location = initialLocation;
 		setProjectionMode(ProjectionMode.TWO_DIMENSIONAL);
@@ -44,14 +49,34 @@ public class Map {
 		mapUiSettings.setRotateGesturesEnabled(false);
 	}
 	
-	public void invalidate() {
+	private void initMarker() {
+
+	}
+	
+	public void invalidate(int animationTime) {
 		boolean is2d = projectionMode == ProjectionMode.TWO_DIMENSIONAL;
-		map.animateCamera(CameraUpdateFactory.newCameraPosition(
-			new CameraPosition(
-				location,
-				zoom,
-				is2d ? TWO_DIMENSIONAL_TILT : THREE_DIMENSIONAL_TILT,
-				is2d ? TWO_DIMENSIONAL_BEARING : bearing)));
+		
+		CameraPosition position = new CameraPosition(
+			location,
+			zoom,
+			is2d ? TWO_DIMENSIONAL_TILT : THREE_DIMENSIONAL_TILT,
+			is2d ? TWO_DIMENSIONAL_BEARING : bearing);
+		
+		CancelableCallback callback = new CancelableCallback() {
+			@Override
+			public void onFinish() {
+				// TODO Auto-generated method stub
+			}
+			
+			@Override
+			public void onCancel() {
+				// TODO Auto-generated method stub
+			}
+		};
+		
+		map.animateCamera(CameraUpdateFactory.newCameraPosition(position), animationTime, callback);
+		
+		
 	}
 	
 	public void setLocation(LatLng location) {
@@ -70,7 +95,7 @@ public class Map {
 		if (this.projectionMode != projectionMode) {
 			this.projectionMode = projectionMode;
 			this.zoom = projectionMode == ProjectionMode.TWO_DIMENSIONAL ? INIT_TWO_DIMENSIONAL_ZOOM : INIT_THREE_DIMENSIONAL_ZOOM;
-			invalidate();
+			invalidate(PROJECTION_CHANGE_ANIMATION_TIME);
 		}
 	}
 	
