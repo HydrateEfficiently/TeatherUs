@@ -14,15 +14,12 @@ public class SimulatedGps extends AbstractGps {
 	private final double KPH_TO_MPS = 0.277778;
 	private final double SPEED_LIMIT_MPS = SPEED_LIMIT_KPH * KPH_TO_MPS;
 	private final double S_TO_MS = 1000;
-	private final int MAX_TICK_MS = 5000;
+	private final int TICK_MS = 500;
 	
-	private LatLng currentLocation;
-	private double currentBearing;
-	private long currentTime;
+	private Position currentPosition;
 	
 	public SimulatedGps(LatLng location) {
-		currentLocation = location;
-		currentBearing = 0;
+		currentPosition = new Position(location, 0, System.currentTimeMillis());
 	}
 	
 	public void followPath(final List<LatLng> path) {
@@ -30,83 +27,61 @@ public class SimulatedGps extends AbstractGps {
 
 			@Override
 			protected Void doInBackground(Void... params) {
-				long travelTime = MAX_TICK_MS;
-				currentTime = System.currentTimeMillis();
-				
+				currentPosition = new Position(currentPosition.location, 0, System.currentTimeMillis());
 				while (path.size() > 0) {
+					advancePosition(path);
+					publishProgress();
 					try {
-						Thread.sleep(travelTime);
+						Thread.sleep(TICK_MS);
 					} catch (InterruptedException ex) {
 						ex.printStackTrace();
-					}
-					travelTime = advancePosition(path);
-					publishProgress();
+					}					
 				}
 				return null;
 			}
 			
 			@Override
 			protected void onProgressUpdate(Void... progress) {
-				onTickHandler.invoke(new Position() {{
-					location = currentLocation;
-					bearing = currentBearing;
-					timestamp = currentTime;
-				}});
+				onTickHandler.invoke(currentPosition);
 			}
 		};
 		tickLoopTask.execute();
 	}
 	
-	private long advancePosition(List<LatLng> remainingPath) {
-		LatLng nextLocation = remainingPath.get(0);
-		
+	private void advancePosition(List<LatLng> remainingPath) {
 		long newTime = System.currentTimeMillis();
-		long timePassedMillisconds = newTime - currentTime;
+		long timePassedMillisconds = newTime - currentPosition.timestamp;
+		double distanceRemaining = (timePassedMillisconds / S_TO_MS) * SPEED_LIMIT_MPS;
+		LatLng currentLocation = currentPosition.location;
+		double currentBearing = 0;
+		LatLng nextLocationInPath;
 		
-		double maxTravelDistance = (timePassedMillisconds / S_TO_MS) * SPEED_LIMIT_MPS;
-		double distanceToNextPoint = GisUtil.distanceInMeters(currentLocation, nextLocation);
-		final double newBearing = GisUtil.initialBearing(currentLocation, nextLocation);
-		
-		long travelTime;
-		double travelDistance;
-		if (maxTravelDistance >= distanceToNextPoint) {
-			remainingPath.remove(0);
-			travelDistance = maxTravelDistance - distanceToNextPoint;
-			travelTime = (long)(travelDistance / SPEED_LIMIT_MPS * S_TO_MS);
-		} else {
-			travelDistance = maxTravelDistance;
-			travelTime = MAX_TICK_MS;
+		while ((nextLocationInPath = remainingPath.get(0)) != null && distanceRemaining > 0) {
+			double distanceToNextPoint = GisUtil.distanceInMeters(currentLocation, nextLocationInPath);
+			double distanceToTravel = Math.min(distanceToNextPoint, distanceRemaining);
+			currentBearing = GisUtil.initialBearing(currentLocation, nextLocationInPath);
+			currentLocation = GisUtil.travel(currentLocation, currentBearing, distanceToTravel);
+			
+			distanceRemaining -= distanceToTravel;
+			if (distanceRemaining > 0) {
+				remainingPath.remove(0);
+			}
 		}
 		
-		final LatLng newLocation = GisUtil.travel(currentLocation, newBearing, travelDistance);
-		
-		currentLocation = newLocation;
-		currentBearing = newBearing;
-		currentTime = newTime;
-			
-		return travelTime;
+		currentPosition = new Position(currentLocation, currentBearing, newTime);
 	}
 	
-	public void stopFollowingPath() {
-		
-	}
-
 	@Override
 	public void enableTracking() {
 		forceTick();
 	}
 
 	@Override
-	public void disableTracking() {
-		stopFollowingPath();		
+	public void disableTracking() {		
 	}
 
 	@Override
 	public void forceTick() {
-		onTickHandler.invoke(new Position() {{
-			location = currentLocation;
-			bearing = currentBearing;
-			timestamp = currentTime;
-		}});
+		onTickHandler.invoke(currentPosition);
 	}
 }

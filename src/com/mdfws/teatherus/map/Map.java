@@ -41,6 +41,8 @@ public class Map {
 		setProjectionMode(ProjectionMode.TWO_DIMENSIONAL);
 	}
 	
+	
+	
 	private void initMapUiSettings() {
 		mapUiSettings = map.getUiSettings();
 		mapUiSettings.setZoomControlsEnabled(false);
@@ -74,9 +76,8 @@ public class Map {
 			}
 		};
 		
-		map.animateCamera(CameraUpdateFactory.newCameraPosition(position), animationTime, callback);
-		
-		
+		map.moveCamera(CameraUpdateFactory.newCameraPosition(position));
+		//map.animateCamera(CameraUpdateFactory.newCameraPosition(position), animationTime, callback);
 	}
 	
 	public void setLocation(LatLng location) {

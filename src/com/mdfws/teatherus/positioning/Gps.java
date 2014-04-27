@@ -43,9 +43,6 @@ public class Gps extends AbstractGps implements LocationListener {
 	
 	@Override
 	public void onLocationChanged(final Location loc) {
-		onTickHandler.invoke(new Position() {{
-			location = GoogleUtil.toLatLng(loc);
-			bearing = loc.hasBearing() ? loc.getBearing() : 0;
-		}});
+		onTickHandler.invoke(new Position(GoogleUtil.toLatLng(loc), loc.hasBearing() ? loc.getBearing() : 0, System.currentTimeMillis()));
 	}
 }
