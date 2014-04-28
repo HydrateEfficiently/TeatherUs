@@ -12,6 +12,10 @@ import com.mdfws.teatherus.util.GoogleUtil;
 
 import android.app.Activity;
 import android.content.IntentSender.SendIntentException;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 public class NavigationActivity extends Activity implements
@@ -48,7 +52,11 @@ public class NavigationActivity extends Activity implements
 	public void onConnected(Bundle dataBundle) {
 		// gps = new Gps(locationClient);
 		gps = new SimulatedGps(GoogleUtil.toLatLng(locationClient.getLastLocation()));
-		navigator = new Navigator(this, gps);
+//		Resources res = getResources();
+//		int resourceId = res.getIdentifier("navigator_0tilt" , "drawable", getPackageName());
+//		Drawable drawable = res.getDrawable(resourceId);
+		Bitmap bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.currentloc);
+		navigator = new Navigator(this, gps, bitmap);
 		navigator.navigateTo(new LatLng(-43.530707 ,172.641946));
 	}
 

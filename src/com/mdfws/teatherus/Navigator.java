@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.mdfws.teatherus.directions.AsyncDirectionsRequest;
 import com.mdfws.teatherus.directions.Directions;
 import com.mdfws.teatherus.directions.AsyncDirectionsRequest.DirectionsRetrieved;
@@ -18,17 +17,17 @@ import com.mdfws.teatherus.positioning.Position;
 import com.mdfws.teatherus.positioning.SimulatedGps;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 
 public class Navigator {
 	
 	private MapFragment mapFragment;
 	private Map map;
-	private Marker navMarker;
 	private IGps gps;
 	private Position currentPosition;
 	private boolean isNavigating = false;
 	
-	public Navigator(Activity activity, IGps gps) {
+	public Navigator(Activity activity, IGps gps, Bitmap vehicle) {
 		this.gps = gps;
 		gps.onTick(new OnTickHandler() {
 			@Override
@@ -40,13 +39,9 @@ public class Navigator {
 		gps.forceTick();
 		
 		mapFragment = (MapFragment)activity.getFragmentManager().findFragmentById(R.id.main_map_view);
-		map = new Map(mapFragment, currentPosition.location);
+		map = new Map(mapFragment, currentPosition.location, vehicle);
 	}
-	
-	private void initMap(Activity activity) {
-		
-	}
-	
+
 	public void updateLocation(Position newPosition) {
 		int timeSinceLast = currentPosition == null || currentPosition.timestamp == 0 ? 1 :
 			(int)(newPosition.timestamp - currentPosition.timestamp);

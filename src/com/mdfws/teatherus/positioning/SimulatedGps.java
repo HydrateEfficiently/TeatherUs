@@ -54,9 +54,9 @@ public class SimulatedGps extends AbstractGps {
 		double distanceRemaining = (timePassedMillisconds / S_TO_MS) * SPEED_LIMIT_MPS;
 		LatLng currentLocation = currentPosition.location;
 		double currentBearing = 0;
-		LatLng nextLocationInPath;
 		
-		while ((nextLocationInPath = remainingPath.get(0)) != null && distanceRemaining > 0) {
+		while (remainingPath.size() > 0 && distanceRemaining > 0) {
+			LatLng nextLocationInPath = remainingPath.get(0);
 			double distanceToNextPoint = GisUtil.distanceInMeters(currentLocation, nextLocationInPath);
 			double distanceToTravel = Math.min(distanceToNextPoint, distanceRemaining);
 			currentBearing = GisUtil.initialBearing(currentLocation, nextLocationInPath);
