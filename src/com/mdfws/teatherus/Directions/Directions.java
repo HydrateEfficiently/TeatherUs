@@ -6,19 +6,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.google.android.gms.maps.model.LatLng;
-import com.mdfws.teatherus.util.GisUtil;
+import com.mdfws.teatherus.util.LatLngUtil;
 
 public class Directions {
 	
 	private ArrayList<Direction> directions;
-	private ArrayList<Point> points;
+	private ArrayList<Point> path;
 	private LatLng endLocation;
 	
 	public Directions(String jsonString) throws JSONException {
 		JSONObject route = new JSONObject(jsonString).getJSONArray("routes").getJSONObject(0); // Only one route supported
 		JSONObject leg = route.getJSONArray("legs").getJSONObject(0); // Only one leg supported
 		createDirections(leg.getJSONArray("steps"));
-		createPoints();
+		createPath();
 	}
 	
 	private void createDirections(JSONArray steps) throws JSONException {
@@ -30,20 +30,20 @@ public class Directions {
 		endLocation = directions.get(length - 1).getEnd();
 	}
 	
-	private void createPoints() {
+	private void createPath() {
 		Direction currentDirection;
 		Point currentPoint;
 		Point prevPoint = createLastPoint();
 		
-		points = new ArrayList<Point>();
-		points.add(prevPoint);
+		path = new ArrayList<Point>();
+		path.add(prevPoint);
 		
 		for (int i = directions.size() - 1; i >= 0; i--) {
 			currentDirection = directions.get(i);
 			List<LatLng> currentDirectionPoints = currentDirection.getPoints();
 			for (int j = currentDirectionPoints.size() - 2; j >= 0; j--) {
 				currentPoint = createPoint(currentDirectionPoints.get(j), prevPoint, currentDirection);
-				points.add(0, currentPoint);
+				path.add(0, currentPoint);
 				prevPoint = currentPoint;
 			}
 		}
@@ -65,7 +65,7 @@ public class Directions {
 	}
 	
 	private Point createPoint(final LatLng loc, final Point next, final Direction dir) {
-		final double distanceToNext = GisUtil.distanceInMeters(loc, next.location);
+		final double distanceToNext = LatLngUtil.distanceInMeters(loc, next.location);
 		final boolean isNewDirection = next.direction != dir;
 		return new Point() {{
 			location = loc;
@@ -82,7 +82,7 @@ public class Directions {
 		return directions;
 	}
 	
-	public List<Point> getPoints() {
-		return points;
+	public List<Point> getPath() {
+		return path;
 	}
 }

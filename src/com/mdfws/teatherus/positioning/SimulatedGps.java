@@ -6,7 +6,7 @@ import android.app.Activity;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.mdfws.teatherus.util.GisUtil;
+import com.mdfws.teatherus.util.LatLngUtil;
 
 public class SimulatedGps extends AbstractGps {
 	
@@ -57,10 +57,10 @@ public class SimulatedGps extends AbstractGps {
 		
 		while (remainingPath.size() > 0 && distanceRemaining > 0) {
 			LatLng nextLocationInPath = remainingPath.get(0);
-			double distanceToNextPoint = GisUtil.distanceInMeters(currentLocation, nextLocationInPath);
+			double distanceToNextPoint = LatLngUtil.distanceInMeters(currentLocation, nextLocationInPath);
 			double distanceToTravel = Math.min(distanceToNextPoint, distanceRemaining);
-			currentBearing = GisUtil.initialBearing(currentLocation, nextLocationInPath);
-			currentLocation = GisUtil.travel(currentLocation, currentBearing, distanceToTravel);
+			currentBearing = LatLngUtil.initialBearing(currentLocation, nextLocationInPath);
+			currentLocation = LatLngUtil.travel(currentLocation, currentBearing, distanceToTravel);
 			
 			distanceRemaining -= distanceToTravel;
 			if (distanceRemaining > 0) {

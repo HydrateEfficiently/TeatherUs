@@ -50,13 +50,17 @@ public class NavigationActivity extends Activity implements
 
 	@Override
 	public void onConnected(Bundle dataBundle) {
+		LatLng initialLocation = GoogleUtil.toLatLng(locationClient.getLastLocation());
+		
 		// gps = new Gps(locationClient);
 		gps = new SimulatedGps(GoogleUtil.toLatLng(locationClient.getLastLocation()));
 //		Resources res = getResources();
 //		int resourceId = res.getIdentifier("navigator_0tilt" , "drawable", getPackageName());
 //		Drawable drawable = res.getDrawable(resourceId);
-		Bitmap bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.currentloc);
-		navigator = new Navigator(this, gps, bitmap);
+		
+		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.currentloc);
+		VehicleOptions options = new VehicleOptions().anchorY(0.5f).image(bitmap).location(initialLocation);
+		navigator = new Navigator(this, gps, options);
 		navigator.navigateTo(new LatLng(-43.530707 ,172.641946));
 	}
 

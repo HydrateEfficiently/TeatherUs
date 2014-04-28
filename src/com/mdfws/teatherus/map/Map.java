@@ -5,11 +5,14 @@ import android.app.Fragment;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -23,6 +26,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class Map {
 	
+	public interface OnProjectionModeChangeListener {
+		public void invoke(ProjectionMode projectionMode);
+	}
+	
 	public enum ProjectionMode {
 		TWO_DIMENSIONAL,
 		THREE_DIMENSIONAL
@@ -31,39 +38,28 @@ public class Map {
 	private static final int MAP_PADDING = 100;
 	private static final float TWO_DIMENSIONAL_TILT = 0;
 	private static final float TWO_DIMENSIONAL_BEARING = 0;
-	private static final float THREE_DIMENSIONAL_TILT = 45;
+	private static final float THREE_DIMENSIONAL_TILT = 60;
 	private static final float INIT_TWO_DIMENSIONAL_ZOOM = 3;
 	private static final float INIT_THREE_DIMENSIONAL_ZOOM = 18;
 	private static final int PROJECTION_CHANGE_ANIMATION_TIME = 1000;
 	
 	private GoogleMap map;
+	private MapFragment mapFragment;
 	private UiSettings mapUiSettings;
 	private ProjectionMode projectionMode;
+	private OnProjectionModeChangeListener projectionModeListener;
 	private GroundOverlay marker;
 	private LatLng location;
 	private float bearing;
 	private float zoom;
 	
-	public Map(Fragment fragment, LatLng initialLocation, Bitmap navigator) {
-		map = ((MapFragment)fragment).getMap();
-		map.setPadding(MAP_PADDING, MAP_PADDING, MAP_PADDING, MAP_PADDING);
+	public Map(MapFragment mapFragment, LatLng initialLocation) {
+		this.mapFragment = mapFragment;
+		map = mapFragment.getMap();
+		// map.setPadding(MAP_PADDING, MAP_PADDING, MAP_PADDING, MAP_PADDING);
 		initMapUiSettings();
 		location = initialLocation;
-		initMarker(initialLocation, navigator);
-		setProjectionMode(ProjectionMode.TWO_DIMENSIONAL);
-	}
-	
-	private void initMarker(LatLng initialLocation, Bitmap navigator) {
-		marker = map.addGroundOverlay(new GroundOverlayOptions()
-			.position(initialLocation, (float)navigator.getWidth(), (float)navigator.getHeight())
-			.image(BitmapDescriptorFactory.fromBitmap(navigator)));
-		map.setOnCameraChangeListener(new OnCameraChangeListener() {
-			@Override
-			public void onCameraChange(CameraPosition position) {
-				marker.setPosition(position.target);
-				// marker.setBearing				
-			}
-		});
+		setProjectionMode(ProjectionMode.THREE_DIMENSIONAL);
 	}
 	
 	private void initMapUiSettings() {
@@ -84,6 +80,27 @@ public class Map {
 			is2d ? TWO_DIMENSIONAL_BEARING : bearing);
 		
 		map.moveCamera(CameraUpdateFactory.newCameraPosition(position));
+	}
+	
+	public Point getSize() {
+		View mapView = mapFragment.getView();
+		return new Point(mapView.getMeasuredWidth(), mapView.getMeasuredHeight());
+	}
+	
+	public Marker addMarker(MarkerOptions options) {
+		return map.addMarker(options);
+	}
+	
+	public Projection getProjection() {
+		return map.getProjection();
+	}
+	
+	public void setOnCameraChangeListener(OnCameraChangeListener listener) {
+		map.setOnCameraChangeListener(listener);
+	}
+	
+	public void setOnProjectionModeChangeListener(OnProjectionModeChangeListener listener) {
+		projectionModeListener = listener;
 	}
 	
 	public void setLocation(LatLng location) {

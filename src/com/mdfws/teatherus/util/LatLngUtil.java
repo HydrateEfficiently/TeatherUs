@@ -2,7 +2,7 @@ package com.mdfws.teatherus.util;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class GisUtil {
+public class LatLngUtil {
 	
 	private final static int EARTH_RADIUS_METERS = 6371000;
 	
@@ -15,10 +15,6 @@ public class GisUtil {
 		public static final double SOUTH_WEST = 225;
 		public static final double WEST = 270;
 		public static final double NORTH_WEST = 315;
-	}
-	
-	public enum LengthUnit {
-		
 	}
     
     public static double distanceInMeters(LatLng point1, LatLng point2) {
@@ -94,4 +90,14 @@ public class GisUtil {
                     bearingResult += 360;
             return bearingResult;
     }
+    
+    public static LatLng closestLocationOnLine(LatLng start, LatLng end, LatLng location) {
+    	double squareDistance = Math.pow(start.longitude, end.longitude) + Math.pow(start.latitude, end.latitude);
+    	double interpolationFactor = ((location.longitude - start.longitude) * (end.longitude - start.longitude) +
+    			((location.latitude - start.latitude) * (end.latitude - start.latitude)) / squareDistance);
+    	double boundedIF = Math.min(1, Math.max(0, interpolationFactor));
+    	return new LatLng(
+    			start.longitude + boundedIF * (end.longitude - start.longitude),
+    			start.latitude + boundedIF * (end.latitude - start.latitude));
+    }    
 }
