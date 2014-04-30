@@ -18,7 +18,6 @@ public class NavigationState {
 	private final int LOOK_BEHIND_POINTS = 2;
 	private final int MIN_ARRIVAL_DIST_METERS = 10;
 	
-	private Directions directions;
 	private NavigatorEvents events;
 	private List<Point> path;
 	private Point destination;
@@ -37,7 +36,6 @@ public class NavigationState {
 	private boolean isOnRoute = true;
 	
 	public NavigationState(Directions directions, NavigatorEvents events) {
-		this.directions = directions;
 		this.events = events;
 		path = directions.getPath();
 		destination = path.get(path.size() - 1);

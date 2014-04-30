@@ -1,5 +1,7 @@
 package com.mdfws.teatherus.map;
 
+import java.util.List;
+
 import android.graphics.Point;
 import android.view.View;
 
@@ -15,6 +17,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 public class Map {
 	
@@ -142,6 +145,10 @@ public class Map {
 	
 	public void unlockUi() {
 		mapUiSettings.setScrollGesturesEnabled(true);
+	}
+	
+	public void addPolyline(List<LatLng> path) {
+		map.addPolyline(new PolylineOptions().addAll(path));
 	}
 	
 	public void toggleProjectionMode() {

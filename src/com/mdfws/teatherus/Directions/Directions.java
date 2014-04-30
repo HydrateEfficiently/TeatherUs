@@ -5,6 +5,9 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.mdfws.teatherus.util.GoogleUtil;
 import com.mdfws.teatherus.util.LatLngUtil;
@@ -13,6 +16,7 @@ public class Directions {
 	
 	private ArrayList<Direction> directions;
 	private ArrayList<Point> path;
+	private ArrayList<LatLng> latLngPath;
 	private LatLng origin;
 	private LatLng destination;
 	
@@ -23,6 +27,8 @@ public class Directions {
 		JSONObject leg = route.getJSONArray("legs").getJSONObject(0); // Only one leg supported
 		createDirections(leg.getJSONArray("steps"));
 		createPath();
+		//dumpPath();
+		createLatLngPath();
 	}
 	
 	private void createDirections(JSONArray steps) throws JSONException {
@@ -99,11 +105,34 @@ public class Directions {
 		}};
 	}
 	
+	private void dumpPath() {
+		for (int i = 0; i <= path.size(); i++) {
+			Point point = path.get(i);
+			Log.i("Directions.path", String.format("location=%s nextlocation=%s", point.location, point.nextPoint.location));
+		}
+	}
+	
+	private void createLatLngPath() {
+		latLngPath = new ArrayList<LatLng>();
+		LatLng lastLocation = path.get(0).location;
+		for (int i = 1; i < path.size(); i++) {
+			LatLng currentLocation = path.get(i).location;
+			if (!lastLocation.equals(currentLocation)) {
+				latLngPath.add(currentLocation);
+			}
+			lastLocation = currentLocation;
+		}
+	}
+	
 	public List<Direction> getDirectionsList() {
 		return directions;
 	}
 	
 	public List<Point> getPath() {
 		return path;
+	}
+	
+	public List<LatLng> getLatLngPath() {
+		return latLngPath;
 	}
 }

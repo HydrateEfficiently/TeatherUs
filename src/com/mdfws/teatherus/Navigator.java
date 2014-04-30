@@ -1,21 +1,16 @@
 package com.mdfws.teatherus;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.mdfws.teatherus.directions.Direction;
 import com.mdfws.teatherus.directions.Directions;
 import com.mdfws.teatherus.directions.Route.DirectionsRetrieved;
-import com.mdfws.teatherus.directions.Point;
 import com.mdfws.teatherus.directions.Route;
 import com.mdfws.teatherus.map.Map;
+import com.mdfws.teatherus.positioning.DebugSimulatedGps;
 import com.mdfws.teatherus.positioning.IGps;
 import com.mdfws.teatherus.positioning.IGps.OnTickHandler;
 import com.mdfws.teatherus.positioning.Position;
-import com.mdfws.teatherus.positioning.SimulatedGps;
 import android.app.Activity;
 
 public class Navigator {
@@ -30,7 +25,7 @@ public class Navigator {
 	private Position lastPosition;
 	private long lastTickTime;
 	
-	public Navigator(Activity activity, IGps gps, VehicleOptions vehicleOptions, NavigatorEvents events) {
+	public Navigator(Activity activity, final IGps gps, VehicleOptions vehicleOptions, NavigatorEvents events) {
 		mapFragment = (MapFragment)activity.getFragmentManager().findFragmentById(R.id.main_map_view);
 		this.vehicleOptions = vehicleOptions;
 		this.events = events;
@@ -92,10 +87,10 @@ public class Navigator {
 	private void startNavigation(Directions directions) {
 		if (!isNavigating()) {
 			createNavigationState(directions);
-			prepareMapForNavigation();
+			prepareMapForNavigation(directions);
 			
-			if (gps instanceof SimulatedGps) {
-				simulateDirections(directions);
+			if (gps instanceof DebugSimulatedGps) {
+				((DebugSimulatedGps)gps).followPath(directions.getLatLngPath());
 			}
 		}
 	}
@@ -125,17 +120,9 @@ public class Navigator {
 		});
 	}
 	
-	private void prepareMapForNavigation() {
+	private void prepareMapForNavigation(Directions directions) {
 		map.setProjectionMode(Map.ProjectionMode.THREE_DIMENSIONAL);
 		map.lockUi();
-	}
-	
-	private void simulateDirections(Directions directions) {
-		List<Point> points = directions.getPath();
-		List<LatLng> path = new ArrayList<LatLng>();
-		for (int i = 0; i < points.size(); i++) {
-			path.add(points.get(i).location);
-		}
-		((SimulatedGps)gps).followPath(path);
+		map.addPolyline(directions.getLatLngPath());
 	}
 }
