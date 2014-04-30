@@ -92,12 +92,12 @@ public class LatLngUtil {
     }
     
     public static LatLng closestLocationOnLine(LatLng start, LatLng end, LatLng location) {
-    	double squareDistance = Math.pow(start.longitude, end.longitude) + Math.pow(start.latitude, end.latitude);
+    	double squareDistance = Math.pow(start.longitude - end.longitude, 2) + Math.pow(start.latitude - end.latitude, 2);
     	double interpolationFactor = ((location.longitude - start.longitude) * (end.longitude - start.longitude) +
     			((location.latitude - start.latitude) * (end.latitude - start.latitude)) / squareDistance);
     	double boundedIF = Math.min(1, Math.max(0, interpolationFactor));
     	return new LatLng(
-    			start.longitude + boundedIF * (end.longitude - start.longitude),
-    			start.latitude + boundedIF * (end.latitude - start.latitude));
+    			start.latitude + boundedIF * (end.latitude - start.latitude),
+    			start.longitude + boundedIF * (end.longitude - start.longitude));
     }    
 }

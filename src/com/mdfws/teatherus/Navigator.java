@@ -6,79 +6,77 @@ import java.util.List;
 
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.mdfws.teatherus.NavigationState.Events;
-import com.mdfws.teatherus.NavigationState.Snapshot;
-import com.mdfws.teatherus.directions.AsyncDirectionsRequest;
 import com.mdfws.teatherus.directions.Direction;
 import com.mdfws.teatherus.directions.Directions;
-import com.mdfws.teatherus.directions.AsyncDirectionsRequest.DirectionsRetrieved;
+import com.mdfws.teatherus.directions.Route.DirectionsRetrieved;
 import com.mdfws.teatherus.directions.Point;
+import com.mdfws.teatherus.directions.Route;
 import com.mdfws.teatherus.map.Map;
 import com.mdfws.teatherus.positioning.IGps;
 import com.mdfws.teatherus.positioning.IGps.OnTickHandler;
 import com.mdfws.teatherus.positioning.Position;
 import com.mdfws.teatherus.positioning.SimulatedGps;
-import com.mdfws.teatherus.util.LatLngUtil;
-
 import android.app.Activity;
-import android.graphics.Bitmap;
 
 public class Navigator {
 	
 	private MapFragment mapFragment;
 	private Map map;
 	private Vehicle vehicle;
+	private VehicleOptions vehicleOptions;
 	private IGps gps;
 	private NavigationState navigationState;
+	private NavigatorEvents events;
+	private Position lastPosition;
 	private long lastTickTime;
 	
-	public Navigator(Activity activity, IGps gps, VehicleOptions vehicleOptions) {
+	public Navigator(Activity activity, IGps gps, VehicleOptions vehicleOptions, NavigatorEvents events) {
+		mapFragment = (MapFragment)activity.getFragmentManager().findFragmentById(R.id.main_map_view);
+		this.vehicleOptions = vehicleOptions;
+		this.events = events;
 		this.gps = gps;
 		gps.onTick(new OnTickHandler() {
 			@Override
 			public void invoke(Position position) {
-				if (vehicle != null) {
+				try {
 					onGpsTick(position);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		});
 		gps.enableTracking();
-		
-		mapFragment = (MapFragment)activity.getFragmentManager().findFragmentById(R.id.main_map_view);
-		map = new Map(mapFragment, currentPosition.location);
-		vehicle = new Vehicle(map, vehicleOptions);
+		gps.forceTick();
 	}
 	
 	private void onGpsTick(Position position) throws Exception {
-		long time = position.timestamp;
-		LatLng location;
-		double bearing;
+		lastPosition = position;
+		
+		if (map == null) {
+			initMap(position);
+		}
 		
 		if (isNavigating()) {
 			navigationState.update(position.location, position.bearing);
-			Snapshot currentState = navigationState.getSnapshot();
-			location = currentState.locationOnRoute;
-			bearing = currentState.bearingOnRoute;
 		} else {
-			location = position.location;
-			bearing = position.bearing;
+			updateVehicleMarker(position.location, position.bearing);
 		}
-		
-		updateVehicleMarker(location, bearing, time);
 	}
 	
-	private void updateVehicleMarker(LatLng location, double bearing, long time) {
-		int timeSinceLast = lastTickTime == 0 ? 1 : (int)(time - lastTickTime);
-		if (vehicle != null) {		
-			vehicle.setLocation(location);
-			vehicle.setHeading((float)bearing);
-			map.invalidate(timeSinceLast);
-		}
-		lastTickTime = time;
+	private void initMap(Position position) {
+		map = new Map(mapFragment, position.location);
+		vehicleOptions.location(position.location);
+		vehicle = new Vehicle(map, vehicleOptions);
+	}
+	
+	private void updateVehicleMarker(LatLng location, double bearing) {
+		vehicle.setLocation(location);
+		vehicle.setHeading((float)bearing);
+		map.invalidate();
 	}
 	
 	public void navigateTo(LatLng latLng) {
-		AsyncDirectionsRequest request = new AsyncDirectionsRequest(currentPosition.location, latLng);
+		Route request = new Route(lastPosition.location, latLng);
 		request.getDirections(new DirectionsRetrieved() {
 			@Override
 			public void invoke(Directions directions) {
@@ -103,23 +101,26 @@ public class Navigator {
 	}
 	
 	private void createNavigationState(Directions directions) {
-		navigationState = new NavigationState(directions, new Events() {
+		navigationState = new NavigationState(directions, new NavigatorEvents() {
 			@Override
 			public void OnVehicleOffRoute() {
-				// TODO Auto-generated method stub
-				
+				events.OnVehicleOffRoute();
 			}
 			
 			@Override
 			public void OnNewDirection(Direction direction) {
-				// TODO Auto-generated method stub
-				
+				events.OnNewDirection(direction);				
 			}
 			
 			@Override
 			public void OnArrival() {
-				// TODO Auto-generated method stub
-				
+				events.OnArrival();
+			}
+
+			@Override
+			public void OnUpdate(UpdateEventArgs args) {
+				updateVehicleMarker(args.locationOnRoute, args.bearingOnRoute);
+				events.OnUpdate(args);
 			}
 		});
 	}

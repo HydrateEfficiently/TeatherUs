@@ -11,7 +11,7 @@ import org.json.JSONException;
 import android.os.AsyncTask;
 import com.google.android.gms.maps.model.LatLng;
 
-public class AsyncDirectionsRequest extends AsyncTask<Void, Void, String> {
+public class Route extends AsyncTask<Void, Void, String> {
 	
 	public interface DirectionsRetrieved {
 		void invoke(Directions directions);
@@ -23,7 +23,7 @@ public class AsyncDirectionsRequest extends AsyncTask<Void, Void, String> {
 	private LatLng destination;
 	private DirectionsRetrieved directionsRetrieved;
 
-	public AsyncDirectionsRequest(LatLng origin, LatLng destination) {
+	public Route(LatLng origin, LatLng destination) {
 		this.origin = origin;
 		this.destination = destination;		
 	}
@@ -57,7 +57,7 @@ public class AsyncDirectionsRequest extends AsyncTask<Void, Void, String> {
 	@Override
 	protected void onPostExecute(String directionsJson) {
 		try {
-			this.directionsRetrieved.invoke(new Directions(directionsJson));
+			this.directionsRetrieved.invoke(new Directions(origin, destination, directionsJson));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

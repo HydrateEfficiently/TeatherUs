@@ -3,32 +3,13 @@ package com.mdfws.teatherus;
 import java.util.List;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.mdfws.teatherus.NavigatorEvents.UpdateEventArgs;
 import com.mdfws.teatherus.directions.Direction;
 import com.mdfws.teatherus.directions.Directions;
 import com.mdfws.teatherus.directions.Point;
 import com.mdfws.teatherus.util.LatLngUtil;
 
 public class NavigationState {
-	
-	public interface Events {
-		void OnVehicleOffRoute();
-		void OnArrival();
-		void OnNewDirection(Direction direction);
-	}
-	
-	public class Snapshot {
-		
-		public Snapshot(LatLng location, double bearing) {
-			locationOnRoute = location;
-			bearingOnRoute = bearing;
-		}
-		
-		public int timeToArrival;
-		public int distanceToArrival;
-		public LatLng locationOnRoute;
-		public double bearingOnRoute;
-		public Direction direction;
-	}
 	
 	private final int MAX_TIME_OFF_ROUTE_MS = 5000;
 	private final int OFF_ROUTE_TOLERANCE_METERS = 10;
@@ -38,7 +19,7 @@ public class NavigationState {
 	private final int MIN_ARRIVAL_DIST_METERS = 10;
 	
 	private Directions directions;
-	private Events events;
+	private NavigatorEvents events;
 	private List<Point> path;
 	private Point destination;
 	private LatLng realLocation;
@@ -48,12 +29,14 @@ public class NavigationState {
 	private double distanceOffRoute;
 	private double bearingOffRoute;
 	private long offRouteStartTime;
-	private Snapshot snapshot;
+	private Point prevPoint;
+	private int timeToArrival;
+	private int distanceToArrival;
 	private int pathIndex = 0;
 	private boolean hasArrived = false;
 	private boolean isOnRoute = true;
 	
-	public NavigationState(Directions directions, Events events) {
+	public NavigationState(Directions directions, NavigatorEvents events) {
 		this.directions = directions;
 		this.events = events;
 		path = directions.getPath();
@@ -64,20 +47,18 @@ public class NavigationState {
 		realLocation = location;
 		realBearing = bearing;
 		if (!hasArrived) {
+			prevPoint = path.get(pathIndex);
 			checkArrival();
 			snapLocationToRoute();
 			snapBearingToRoute();
-			checkOffRoute();
 			calculateDistanceToArrival();
 			calculateTimeToArrival();
-			createSnapshot();
+			checkDirectionChanged();
+			fireUpdate();
+			checkOffRoute();
 		} else {
 			throw new Exception("NavigationState expired, vehicle has arrived at destination.");
 		}
-	}
-	
-	public Snapshot getSnapshot() {
-		return snapshot;
 	}
 	
 	private void checkArrival() {
@@ -119,6 +100,7 @@ public class NavigationState {
 	
 	private void checkOffRoute() {
 		if (distanceOffRoute > OFF_ROUTE_TOLERANCE_METERS || bearingOffRoute > OFF_ROUTE_TOLERANCE_BEARING) {
+			unsnapPosition();
 			if (isOnRoute) {
 				isOnRoute = false;
 				offRouteStartTime = System.currentTimeMillis();
@@ -130,6 +112,11 @@ public class NavigationState {
 		}
 	}
 	
+	private void unsnapPosition() {
+		snappedLocation = realLocation;
+		snappedBearing = realBearing;
+	}
+	
 	private void calculateDistanceToArrival() {
 		
 	}
@@ -138,7 +125,15 @@ public class NavigationState {
 		
 	}
 	
-	private void createSnapshot() {
-		snapshot = new Snapshot(snappedLocation, snappedBearing);
+	private void checkDirectionChanged() {
+		Direction currentDirection = path.get(pathIndex).direction;
+		Direction prevDirection = prevPoint.direction;
+		if (currentDirection != prevDirection){
+			events.OnNewDirection(currentDirection);
+		}
+	}
+	
+	private void fireUpdate() {
+		events.OnUpdate(new UpdateEventArgs(snappedLocation, snappedBearing, timeToArrival, distanceToArrival, path.get(pathIndex).direction));
 	}
 }

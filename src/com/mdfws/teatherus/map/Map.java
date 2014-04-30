@@ -1,10 +1,5 @@
 package com.mdfws.teatherus.map;
 
-import android.R;
-import android.app.Fragment;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.view.View;
 
@@ -15,11 +10,8 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.GroundOverlay;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -70,7 +62,7 @@ public class Map {
 		mapUiSettings.setRotateGesturesEnabled(false);
 	}
 	
-	public void invalidate(int animationTime) {
+	public void invalidate() {
 		boolean is2d = projectionMode == ProjectionMode.TWO_DIMENSIONAL;
 		
 		CameraPosition position = new CameraPosition(

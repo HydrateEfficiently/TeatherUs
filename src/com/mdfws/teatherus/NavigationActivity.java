@@ -5,6 +5,7 @@ import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallback
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.model.LatLng;
+import com.mdfws.teatherus.directions.Direction;
 import com.mdfws.teatherus.positioning.Gps;
 import com.mdfws.teatherus.positioning.IGps;
 import com.mdfws.teatherus.positioning.SimulatedGps;
@@ -50,17 +51,43 @@ public class NavigationActivity extends Activity implements
 
 	@Override
 	public void onConnected(Bundle dataBundle) {
-		LatLng initialLocation = GoogleUtil.toLatLng(locationClient.getLastLocation());
+		LatLng initialLocation = new LatLng(-43.528218, 172.588186); //GoogleUtil.toLatLng(locationClient.getLastLocation());
 		
 		// gps = new Gps(locationClient);
-		gps = new SimulatedGps(GoogleUtil.toLatLng(locationClient.getLastLocation()));
+		gps = new SimulatedGps(initialLocation);
 //		Resources res = getResources();
 //		int resourceId = res.getIdentifier("navigator_0tilt" , "drawable", getPackageName());
 //		Drawable drawable = res.getDrawable(resourceId);
 		
 		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.currentloc);
 		VehicleOptions options = new VehicleOptions().anchorY(0.5f).image(bitmap).location(initialLocation);
-		navigator = new Navigator(this, gps, options);
+		navigator = new Navigator(this, gps, options, new NavigatorEvents() {
+
+			@Override
+			public void OnVehicleOffRoute() {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void OnArrival() {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void OnNewDirection(Direction direction) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void OnUpdate(UpdateEventArgs args) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		navigator.navigateTo(new LatLng(-43.530707 ,172.641946));
 	}
 

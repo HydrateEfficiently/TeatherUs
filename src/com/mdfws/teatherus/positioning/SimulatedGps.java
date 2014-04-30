@@ -2,7 +2,6 @@ package com.mdfws.teatherus.positioning;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 
 import com.google.android.gms.maps.model.LatLng;

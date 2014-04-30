@@ -6,15 +6,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.google.android.gms.maps.model.LatLng;
+import com.mdfws.teatherus.util.GoogleUtil;
 import com.mdfws.teatherus.util.LatLngUtil;
 
 public class Directions {
 	
 	private ArrayList<Direction> directions;
 	private ArrayList<Point> path;
-	private LatLng endLocation;
+	private LatLng origin;
+	private LatLng destination;
 	
-	public Directions(String jsonString) throws JSONException {
+	public Directions(LatLng origin, LatLng destination, String jsonString) throws JSONException {
+		this.origin = origin;
+		this.destination = destination;
 		JSONObject route = new JSONObject(jsonString).getJSONArray("routes").getJSONObject(0); // Only one route supported
 		JSONObject leg = route.getJSONArray("legs").getJSONObject(0); // Only one leg supported
 		createDirections(leg.getJSONArray("steps"));
@@ -23,11 +27,28 @@ public class Directions {
 	
 	private void createDirections(JSONArray steps) throws JSONException {
 		directions = new ArrayList<Direction>();
-		int length = steps.length();
-		for (int i = 0; i < length; i++) {
-			directions.add(new Direction(steps.getJSONObject(i)));
+		String nextDirectionText = "Depart";
+		List<LatLng> nextDirectionPath = new ArrayList<LatLng>();
+		nextDirectionPath.add(origin);
+		for (int i = 0; i < steps.length(); i++) {
+			JSONObject step = steps.getJSONObject(i);
+			nextDirectionPath.add(getLatLng(step.getJSONObject("start_location")));
+			directions.add(new Direction(nextDirectionText, nextDirectionPath));
+			
+			nextDirectionText = step.getString("html_instructions");
+			nextDirectionPath = GoogleUtil.decodePolyline(step.getJSONObject("polyline").getString("points"));
+			nextDirectionPath.add(getLatLng(step.getJSONObject("end_location")));
 		}
-		endLocation = directions.get(length - 1).getEnd();
+		directions.add(new Direction(nextDirectionText, nextDirectionPath));
+		ArrayList<LatLng> lastDirectionPath = new ArrayList<LatLng>();
+		lastDirectionPath.add(destination);
+		directions.add(new Direction("Arrive", lastDirectionPath));
+	}
+	
+	private LatLng getLatLng(JSONObject serializedLatLng) throws JSONException {
+		double lat = serializedLatLng.getDouble("lat");
+		double lng = serializedLatLng.getDouble("lng");
+		return new LatLng(lat, lng);
 	}
 	
 	private void createPath() {
@@ -40,8 +61,8 @@ public class Directions {
 		
 		for (int i = directions.size() - 1; i >= 0; i--) {
 			currentDirection = directions.get(i);
-			List<LatLng> currentDirectionPoints = currentDirection.getPoints();
-			for (int j = currentDirectionPoints.size() - 2; j >= 0; j--) {
+			List<LatLng> currentDirectionPoints = currentDirection.path;
+			for (int j = currentDirectionPoints.size() - 1; j >= 0; j--) {
 				currentPoint = createPoint(currentDirectionPoints.get(j), prevPoint, currentDirection);
 				path.add(0, currentPoint);
 				prevPoint = currentPoint;
@@ -51,7 +72,7 @@ public class Directions {
 	
 	private Point createLastPoint() {
 		return new Point() {{
-			location = endLocation;
+			location = destination;
 			distanceToCurrentDirectionMeters = 0;
 			timeToCurrentDirectionMinutes = 0;
 			distanceToNextDirectionMeters = 0;
