@@ -7,6 +7,7 @@ import com.mdfws.teatherus.directions.Directions;
 import com.mdfws.teatherus.directions.Route.DirectionsRetrieved;
 import com.mdfws.teatherus.directions.Route;
 import com.mdfws.teatherus.map.Map;
+import com.mdfws.teatherus.positioning.AbstractSimulatedGps;
 import com.mdfws.teatherus.positioning.DebugSimulatedGps;
 import com.mdfws.teatherus.positioning.IGps;
 import com.mdfws.teatherus.positioning.IGps.OnTickHandler;
@@ -89,8 +90,8 @@ public class Navigator {
 			createNavigationState(directions);
 			prepareMapForNavigation(directions);
 			
-			if (gps instanceof DebugSimulatedGps) {
-				((DebugSimulatedGps)gps).followPath(directions.getLatLngPath());
+			if (gps instanceof AbstractSimulatedGps) {
+				((AbstractSimulatedGps)gps).followPath(directions.getLatLngPath());
 			}
 		}
 	}

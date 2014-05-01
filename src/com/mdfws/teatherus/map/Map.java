@@ -148,7 +148,7 @@ public class Map {
 	}
 	
 	public void addPolyline(List<LatLng> path) {
-		map.addPolyline(new PolylineOptions().addAll(path));
+		map.addPolyline(new PolylineOptions().addAll(path).color(0xff3073F0));
 	}
 	
 	public void toggleProjectionMode() {

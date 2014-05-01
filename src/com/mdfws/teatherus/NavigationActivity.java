@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.mdfws.teatherus.directions.Direction;
 import com.mdfws.teatherus.positioning.DebugSimulatedGps;
 import com.mdfws.teatherus.positioning.IGps;
+import com.mdfws.teatherus.positioning.SimulatedGps;
 
 import android.app.Activity;
 import android.content.IntentSender.SendIntentException;
@@ -50,12 +51,12 @@ public class NavigationActivity extends Activity implements
 		LatLng initialLocation = new LatLng(-43.463292,172.620614); //GoogleUtil.toLatLng(locationClient.getLastLocation());
 		
 		// gps = new Gps(locationClient);
-		gps = new DebugSimulatedGps(initialLocation);
+		gps = new SimulatedGps(initialLocation);
 //		Resources res = getResources();
 //		int resourceId = res.getIdentifier("navigator_0tilt" , "drawable", getPackageName());
 //		Drawable drawable = res.getDrawable(resourceId);
 		
-		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.currentloc);
+		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vehicle);
 		VehicleOptions options = new VehicleOptions().anchorY(0.5f).image(bitmap).location(initialLocation);
 		navigator = new Navigator(this, gps, options, new NavigatorEvents() {
 

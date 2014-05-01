@@ -5,9 +5,9 @@ import java.util.List;
 import android.os.AsyncTask;
 import com.google.android.gms.maps.model.LatLng;
 
-public class AsyncSimulatedGps extends AbstractSimulatedGps {
+public class SimulatedGps extends AbstractSimulatedGps {
 	
-	public AsyncSimulatedGps(LatLng location) {
+	public SimulatedGps(LatLng location) {
 		super(location);
 	}
 

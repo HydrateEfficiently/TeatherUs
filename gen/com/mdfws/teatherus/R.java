@@ -211,6 +211,7 @@ containing a value of this type.
         public static final int ic_plusone_standard_off_client=0x7f02001c;
         public static final int ic_plusone_tall_off_client=0x7f02001d;
         public static final int navigator_0tilt=0x7f02001e;
+        public static final int vehicle=0x7f02001f;
     }
     public static final class id {
         public static final int hybrid=0x7f050004;

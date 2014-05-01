@@ -9,7 +9,7 @@ public abstract class AbstractSimulatedGps extends AbstractGps {
 	
 	protected Position currentPosition;
 	
-	protected final int TICK_MS = 1000;
+	protected final int TICK_MS = 500;
 	
 	private final int SPEED_LIMIT_KPH = 50;
 	private final double KPH_TO_MPS = 0.277778;
