@@ -15,6 +15,7 @@ import android.content.IntentSender.SendIntentException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.WindowManager;
 
 public class NavigationActivity extends Activity implements
 	ConnectionCallbacks,
@@ -30,6 +31,7 @@ public class NavigationActivity extends Activity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_navigation);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		locationClient = new LocationClient(this, this, this);
 	}
 
