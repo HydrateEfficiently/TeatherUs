@@ -124,9 +124,10 @@ public class NavigationState {
 				i++) {
 			
 			Point currentPoint = path.get(i);
-			LatLng currentLocationOnPath = LatLngUtil.closestLocationOnLine(currentPoint.location, currentPoint.nextPoint.location, position.location);
+			LatLng currentLocationOnPath = currentPoint.nextPoint == null ? currentPoint.location :
+				LatLngUtil.closestLocationOnLine(currentPoint.location, currentPoint.nextPoint.location, position.location);
 			double currentDistance = LatLngUtil.distanceInMeters(position.location, currentLocationOnPath);
-			
+
 			if (currentDistance < bestDistanceOffPath) {
 				bestDistanceOffPath = currentDistance;
 				bestIndex = i;

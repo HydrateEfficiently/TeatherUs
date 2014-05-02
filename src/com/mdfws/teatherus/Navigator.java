@@ -9,11 +9,13 @@ import com.mdfws.teatherus.directions.Point;
 import com.mdfws.teatherus.directions.Route.DirectionsRetrieved;
 import com.mdfws.teatherus.directions.Route;
 import com.mdfws.teatherus.map.Map;
+import com.mdfws.teatherus.map.MapOptions;
 import com.mdfws.teatherus.positioning.AbstractSimulatedGps;
 import com.mdfws.teatherus.positioning.IGps;
 import com.mdfws.teatherus.positioning.IGps.OnTickHandler;
 import com.mdfws.teatherus.positioning.Position;
 import com.mdfws.teatherus.util.LatLngUtil;
+import com.mdfws.teatherus.util.PointD;
 
 import android.app.Activity;
 import android.util.Log;
@@ -106,7 +108,7 @@ public class Navigator {
 	}
 	
 	private void initMap(Position position) {
-		map = new Map(mapFragment, position.location);
+		map = new Map(mapFragment, new MapOptions().location(position.location).anchor(new PointD(0.5, (double)vehicleOptions.anchorY())));
 		vehicleOptions.location(position.location);
 		vehicle = new Vehicle(map, vehicleOptions);
 	}

@@ -46,13 +46,6 @@ public class Vehicle {
 	
 	public void setLocation(LatLng location) {
 		this.location = location;
-//		Projection projection = map.getProjection();
-//		VisibleRegion vr = projection.getVisibleRegion();
-//		Point vehicleScreenXY = projection.toScreenLocation(location);
-//		Point mapSize = map.getSize();
-//		int yOffset = (int)((0.5 - anchorY) * mapSize.y);
-//		Point mapCenterXY = new Point(vehicleScreenXY.x, vehicleScreenXY.y - yOffset);
-//		LatLng mapCenterLL = projection.fromScreenLocation(mapCenterXY);
 		map.setLocation(location);
 	}
 	

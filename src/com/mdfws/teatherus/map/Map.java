@@ -3,6 +3,7 @@ package com.mdfws.teatherus.map;
 import java.util.List;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -18,6 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.mdfws.teatherus.util.PointD;
 
 public class Map {
 	
@@ -48,12 +50,15 @@ public class Map {
 	private float bearing;
 	private float zoom;
 	
-	public Map(MapFragment mapFragment, LatLng initialLocation) {
+	private PointD anchor;
+	
+	public Map(MapFragment mapFragment, MapOptions options) {
 		this.mapFragment = mapFragment;
 		map = mapFragment.getMap();
 		// map.setPadding(MAP_PADDING, MAP_PADDING, MAP_PADDING, MAP_PADDING);
 		initMapUiSettings();
-		location = initialLocation;
+		location = options.location();
+		anchor = options.anchor();
 		setProjectionMode(ProjectionMode.THREE_DIMENSIONAL);
 	}
 	
@@ -99,7 +104,13 @@ public class Map {
 	}
 	
 	public void setLocation(LatLng location) {
-		this.location = location;
+		Point size = getSize();
+		PointD anchorOffset = new PointD(size.x * (0.5 - anchor.x), size.y * (0.5 - anchor.y));
+		PointD screenCenterWorldXY = SphericalMercatorProjection.latLngToWorldXY(location, zoom);
+		PointD newScreenCenterWorldXY = new PointD(screenCenterWorldXY.x + anchorOffset.x, screenCenterWorldXY.y + anchorOffset.y);
+		newScreenCenterWorldXY.rotate(screenCenterWorldXY, bearing);
+		LatLng offsetLocation = SphericalMercatorProjection.worldXYToLatLng(newScreenCenterWorldXY, zoom);
+		this.location = offsetLocation;
 	}
 	
 	public void setZoom(float zoom) {

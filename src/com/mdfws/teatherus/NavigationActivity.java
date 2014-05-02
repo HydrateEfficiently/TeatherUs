@@ -59,7 +59,7 @@ public class NavigationActivity extends Activity implements
 //		Drawable drawable = res.getDrawable(resourceId);
 		
 		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vehicle);
-		VehicleOptions options = new VehicleOptions().anchorY(0.5f).image(bitmap).location(initialLocation);
+		VehicleOptions options = new VehicleOptions().anchorY(0.9f).image(bitmap).location(initialLocation);
 		navigator = new Navigator(this, gps, options, new NavigatorEvents() {
 
 			@Override
