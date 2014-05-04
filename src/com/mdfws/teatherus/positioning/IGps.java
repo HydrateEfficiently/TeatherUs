@@ -1,5 +1,7 @@
 package com.mdfws.teatherus.positioning;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public interface IGps {
 	
 	public interface OnTickHandler {
@@ -13,4 +15,6 @@ public interface IGps {
 	void forceTick();
 	
 	void onTick(OnTickHandler handler);
+	
+	LatLng getLastLocation();
 }

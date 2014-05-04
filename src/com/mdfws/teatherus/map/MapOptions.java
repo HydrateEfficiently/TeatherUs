@@ -1,11 +1,12 @@
 package com.mdfws.teatherus.map;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.mdfws.teatherus.Defaults;
 import com.mdfws.teatherus.util.PointD;
 
 public class MapOptions {
 	
-	private LatLng location = new LatLng(34, -172);
+	private LatLng location = Defaults.LOCATION;
 	private PointD anchor = new PointD(0.5, 0.5);
 	
 	public LatLng location() {

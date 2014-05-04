@@ -36,6 +36,11 @@ public abstract class AbstractSimulatedGps extends AbstractGps {
 		onTickHandler.invoke(currentPosition);
 	}
 	
+	@Override
+	public LatLng getLastLocation() {
+		return currentPosition.location;
+	}
+	
 	protected void advancePosition(List<LatLng> path) {
 		long newTime = System.currentTimeMillis();
 		long timePassedMillisconds = TICK_MS; // newTime - currentPosition.timestamp;

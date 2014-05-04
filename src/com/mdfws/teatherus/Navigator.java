@@ -38,11 +38,15 @@ public class Navigator {
 	private NavigationState lastNavigationState;
 	private LatLng destination;
 	
-	public Navigator(Activity activity, final IGps gps, VehicleOptions vehicleOptions, NavigatorEvents events) {
-		mapFragment = (MapFragment)activity.getFragmentManager().findFragmentById(R.id.main_map_view);
-		this.vehicleOptions = vehicleOptions;
-		this.events = events;
+	public Navigator(final IGps gps, Map map, VehicleOptions vehicleMarkerOptions, NavigatorEvents events) {
 		this.gps = gps;
+		this.map = map;
+		this.vehicle = new Vehicle(map, vehicleMarkerOptions.location(gps.getLastLocation()));
+		this.events = events;
+		listenToGps();
+	}
+	
+	private void listenToGps() {
 		gps.onTick(new OnTickHandler() {
 			@Override
 			public void invoke(Position position) {
@@ -52,7 +56,7 @@ public class Navigator {
 		gps.enableTracking();
 		gps.forceTick();
 	}
-	
+
 	public void navigateTo(final LatLng location) {
 		Route request = new Route(idlePosition.location, location);
 		request.getDirections(new DirectionsRetrieved() {
@@ -86,10 +90,6 @@ public class Navigator {
 	}
 	
 	private void onGpsTick(Position position) {
-		if (map == null) {
-			initMap(position);
-		}
-		
 		if (isNavigating()) {
 			try {
 				navigationState.update(position);
@@ -105,12 +105,6 @@ public class Navigator {
 		} else {
 			idlePosition = position;
 		}
-	}
-	
-	private void initMap(Position position) {
-		map = new Map(mapFragment, new MapOptions().location(position.location).anchor(new PointD(0.5, (double)vehicleOptions.anchorY())));
-		vehicleOptions.location(position.location);
-		vehicle = new Vehicle(map, vehicleOptions);
 	}
 	
 	private void checkArrival() {

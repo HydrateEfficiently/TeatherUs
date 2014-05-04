@@ -13,12 +13,13 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.mdfws.teatherus.Vehicle;
 import com.mdfws.teatherus.util.PointD;
 
 public class Map {
@@ -32,7 +33,6 @@ public class Map {
 		THREE_DIMENSIONAL
 	}
 	
-	private static final int MAP_PADDING = 100;
 	private static final float TWO_DIMENSIONAL_TILT = 0;
 	private static final float TWO_DIMENSIONAL_BEARING = 0;
 	private static final float THREE_DIMENSIONAL_TILT = 60;
@@ -45,7 +45,7 @@ public class Map {
 	private UiSettings mapUiSettings;
 	private ProjectionMode projectionMode;
 	private OnProjectionModeChangeListener projectionModeListener;
-	private GroundOverlay marker;
+	private Marker marker;
 	private LatLng location;
 	private float bearing;
 	private float zoom;
@@ -55,7 +55,6 @@ public class Map {
 	public Map(MapFragment mapFragment, MapOptions options) {
 		this.mapFragment = mapFragment;
 		map = mapFragment.getMap();
-		// map.setPadding(MAP_PADDING, MAP_PADDING, MAP_PADDING, MAP_PADDING);
 		initMapUiSettings();
 		location = options.location();
 		anchor = options.anchor();
@@ -87,8 +86,17 @@ public class Map {
 		return new Point(mapView.getMeasuredWidth(), mapView.getMeasuredHeight());
 	}
 	
-	public Marker addMarker(MarkerOptions options) {
-		return map.addMarker(options);
+	public Marker addVehicle(Vehicle vehicle) {
+		if (marker != null) {
+			marker.remove();
+		}
+		
+		marker = map.addMarker(new MarkerOptions()
+				.position(vehicle.getLocation())
+				.icon(BitmapDescriptorFactory.fromBitmap(vehicle.getImage()))
+				.flat(true));
+		anchor = vehicle.getAnchor();
+		return marker;
 	}
 	
 	public Projection getProjection() {

@@ -4,6 +4,8 @@ import android.location.Location;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.model.LatLng;
+import com.mdfws.teatherus.Defaults;
 import com.mdfws.teatherus.util.GoogleUtil;
 
 public class Gps extends AbstractGps implements LocationListener {
@@ -44,5 +46,11 @@ public class Gps extends AbstractGps implements LocationListener {
 	@Override
 	public void onLocationChanged(final Location loc) {
 		onTickHandler.invoke(new Position(GoogleUtil.toLatLng(loc), loc.hasBearing() ? loc.getBearing() : 0, System.currentTimeMillis()));
+	}
+	
+	@Override
+	public LatLng getLastLocation() {
+		Location loc = locationClient.getLastLocation();
+		return loc == null ? Defaults.LOCATION : GoogleUtil.toLatLng(loc);
 	}
 }

@@ -13,12 +13,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 import com.mdfws.teatherus.map.Map;
+import com.mdfws.teatherus.util.PointD;
 
 public class Vehicle {
 	
 	private LatLng location;
 	private Bitmap image;
-	private float anchorY;
+	private PointD anchor;
 	private Marker marker;
 	private float heading;
 	private Map map;
@@ -27,13 +28,10 @@ public class Vehicle {
 		this.map = map;
 		location = options.location();
 		image = options.image();
-		anchorY = options.anchorY();
+		anchor = options.anchor();
 		heading = 0f;
 		
-		marker = map.addMarker(new MarkerOptions()
-				.position(location)
-				.icon(BitmapDescriptorFactory.fromBitmap(image))
-				.flat(true));
+		marker = map.addVehicle(this);
 		
 		map.setOnCameraChangeListener(new OnCameraChangeListener() {
 			@Override
@@ -49,7 +47,7 @@ public class Vehicle {
 		map.setLocation(location);
 	}
 	
-	public LatLng getLocation(LatLng location) {
+	public LatLng getLocation() {
 		return location;
 	}
 	
@@ -60,5 +58,13 @@ public class Vehicle {
 	
 	public float getHeading() {
 		return heading;
+	}
+	
+	public Bitmap getImage() {
+		return image;
+	}
+	
+	public PointD getAnchor() {
+		return anchor;
 	}
 }
