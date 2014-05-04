@@ -1,4 +1,4 @@
-package com.mdfws.teatherus.map;
+package com.mdfws.teatherus;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.mdfws.teatherus.util.PointD;

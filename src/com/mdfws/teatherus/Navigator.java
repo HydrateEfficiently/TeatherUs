@@ -3,21 +3,17 @@ package com.mdfws.teatherus;
 import java.io.InvalidObjectException;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.mdfws.teatherus.NavigationMap.MapMode;
 import com.mdfws.teatherus.directions.Direction;
 import com.mdfws.teatherus.directions.Directions;
 import com.mdfws.teatherus.directions.Point;
 import com.mdfws.teatherus.directions.Route.DirectionsRetrieved;
 import com.mdfws.teatherus.directions.Route;
-import com.mdfws.teatherus.map.Map;
-import com.mdfws.teatherus.map.MapOptions;
 import com.mdfws.teatherus.positioning.AbstractSimulatedGps;
 import com.mdfws.teatherus.positioning.IGps;
 import com.mdfws.teatherus.positioning.IGps.OnTickHandler;
 import com.mdfws.teatherus.positioning.Position;
 import com.mdfws.teatherus.util.LatLngUtil;
-import com.mdfws.teatherus.util.PointD;
-
-import android.app.Activity;
 import android.util.Log;
 
 public class Navigator {
@@ -27,10 +23,8 @@ public class Navigator {
 	private final int OFF_PATH_TOLERANCE_BEARING = 45;
 	private final int MAX_TIME_OFF_PATH_MS = 5000;
 	
-	private MapFragment mapFragment;
-	private Map map;
+	private NavigationMap map;
 	private Vehicle vehicle;
-	private VehicleOptions vehicleOptions;
 	private IGps gps;
 	private NavigatorEvents events;
 	private Position idlePosition;
@@ -38,7 +32,7 @@ public class Navigator {
 	private NavigationState lastNavigationState;
 	private LatLng destination;
 	
-	public Navigator(final IGps gps, Map map, VehicleOptions vehicleMarkerOptions, NavigatorEvents events) {
+	public Navigator(final IGps gps, NavigationMap map, VehicleOptions vehicleMarkerOptions, NavigatorEvents events) {
 		this.gps = gps;
 		this.map = map;
 		this.vehicle = new Vehicle(map, vehicleMarkerOptions.location(gps.getLastLocation()));
@@ -75,18 +69,13 @@ public class Navigator {
 	private void startNavigation(Directions directions) {
 		if (!isNavigating()) {
 			navigationState = new NavigationState(directions);
-			prepareMapForNavigation(directions);
+			map.addPathPolyline(directions.getLatLngPath());
+			map.setMapMode(MapMode.NAVIGATING);
 			
 			if (gps instanceof AbstractSimulatedGps) {
 				((AbstractSimulatedGps)gps).followPath(directions.getLatLngPath());
 			}
 		}
-	}
-	
-	private void prepareMapForNavigation(Directions directions) {
-		map.setProjectionMode(Map.ProjectionMode.THREE_DIMENSIONAL);
-		map.lockUi();
-		map.addPolyline(directions.getLatLngPath());
 	}
 	
 	private void onGpsTick(Position position) {
@@ -154,12 +143,14 @@ public class Navigator {
 		
 		vehicle.setLocation(location);
 		vehicle.setHeading((float)bearing);
-		map.invalidate();
+		map.update();
 	}
 	
 	private void endNavigation() {
 		destination = null;
 		navigationState = null;
 		lastNavigationState = null;
+		map.setMapMode(MapMode.IDLE);
+		map.removePolylinePath();
 	}
 }

@@ -1,11 +1,10 @@
 package com.mdfws.teatherus;
 
-import com.mdfws.teatherus.map.MapOptions;
 
 public class NavigationOptions {
 	
 	private VehicleOptions vehicleOptions = new VehicleOptions();
-	private MapOptions mapOptions = new MapOptions();
+	private NavigationMapOptions mapOptions = new NavigationMapOptions();
 	
 	public NavigationOptions vehicleOptions(VehicleOptions options) {
 		vehicleOptions = options;
@@ -16,12 +15,12 @@ public class NavigationOptions {
 		return vehicleOptions;
 	}
 	
-	public NavigationOptions mapOptions(MapOptions options) {
+	public NavigationOptions mapOptions(NavigationMapOptions options) {
 		mapOptions = options;
 		return this;
 	}
 	
-	public MapOptions mapOptions() {
+	public NavigationMapOptions mapOptions() {
 		return mapOptions;
 	}
 }

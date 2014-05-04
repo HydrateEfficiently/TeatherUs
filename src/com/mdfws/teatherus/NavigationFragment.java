@@ -8,8 +8,6 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.mdfws.teatherus.NavigatorEvents.UpdateEventArgs;
 import com.mdfws.teatherus.directions.Direction;
-import com.mdfws.teatherus.map.Map;
-import com.mdfws.teatherus.map.MapOptions;
 import com.mdfws.teatherus.positioning.Gps;
 import com.mdfws.teatherus.positioning.IGps;
 import com.mdfws.teatherus.positioning.SimulatedGps;
@@ -33,7 +31,7 @@ public class NavigationFragment extends Fragment implements
 	private NavigationOptions options;
 	private Activity parent;
 	private LocationClient locationClient;
-	private Map map;
+	private NavigationMap map;
 	private IGps gps;
 	private Navigator navigator;
 	private NavigatorEvents internalEvents;
@@ -60,7 +58,7 @@ public class NavigationFragment extends Fragment implements
 		parent = getActivity();
 		parent.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.main_map_view);
-		map = new Map(mapFragment, options.mapOptions());
+		map = new NavigationMap(mapFragment, options.mapOptions());
 		locationClient = new LocationClient(parent, this, this);
 		locationClient.connect();
 		super.onStart();

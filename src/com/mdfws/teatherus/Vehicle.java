@@ -12,7 +12,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
-import com.mdfws.teatherus.map.Map;
 import com.mdfws.teatherus.util.PointD;
 
 public class Vehicle {
@@ -22,16 +21,16 @@ public class Vehicle {
 	private PointD anchor;
 	private Marker marker;
 	private float heading;
-	private Map map;
+	private NavigationMap map;
 		
-	public Vehicle(Map map, VehicleOptions options) {
+	public Vehicle(NavigationMap map, VehicleOptions options) {
 		this.map = map;
 		location = options.location();
 		image = options.image();
 		anchor = options.anchor();
 		heading = 0f;
 		
-		marker = map.addVehicle(this);
+		marker = map.addVehicleMarker(this);
 		
 		map.setOnCameraChangeListener(new OnCameraChangeListener() {
 			@Override
