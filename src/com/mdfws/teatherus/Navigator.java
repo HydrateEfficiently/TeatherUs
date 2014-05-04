@@ -1,7 +1,6 @@
 package com.mdfws.teatherus;
 
 import java.io.InvalidObjectException;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.mdfws.teatherus.NavigationMap.MapMode;
 import com.mdfws.teatherus.directions.Direction;
@@ -10,6 +9,7 @@ import com.mdfws.teatherus.directions.Point;
 import com.mdfws.teatherus.directions.Route.DirectionsRetrieved;
 import com.mdfws.teatherus.directions.Route;
 import com.mdfws.teatherus.positioning.AbstractSimulatedGps;
+import com.mdfws.teatherus.positioning.GpsPosition;
 import com.mdfws.teatherus.positioning.IGps;
 import com.mdfws.teatherus.positioning.IGps.OnTickHandler;
 import com.mdfws.teatherus.positioning.Position;
@@ -35,7 +35,8 @@ public class Navigator {
 	public Navigator(final IGps gps, NavigationMap map, VehicleOptions vehicleMarkerOptions, NavigatorEvents events) {
 		this.gps = gps;
 		this.map = map;
-		this.vehicle = new Vehicle(map, vehicleMarkerOptions.location(gps.getLastLocation()));
+		this.vehicle = new Vehicle(map,
+				vehicleMarkerOptions.position(new Position(gps.getLastLocation(), 0)));
 		this.events = events;
 		listenToGps();
 	}
@@ -43,7 +44,7 @@ public class Navigator {
 	private void listenToGps() {
 		gps.onTick(new OnTickHandler() {
 			@Override
-			public void invoke(Position position) {
+			public void invoke(GpsPosition position) {
 				onGpsTick(position);
 			}
 		});
@@ -78,7 +79,7 @@ public class Navigator {
 		}
 	}
 	
-	private void onGpsTick(Position position) {
+	private void onGpsTick(GpsPosition position) {
 		if (isNavigating()) {
 			try {
 				navigationState.update(position);
@@ -131,19 +132,9 @@ public class Navigator {
 	}
 	
 	private void updateVehicleMarker() {
-		LatLng location;
-		double bearing;
-		if (navigationState.isOnPath()) {
-			location = navigationState.getLocationOnPath();
-			bearing = navigationState.getBearingOnPath();
-		} else {
-			location = navigationState.getLocation();
-			bearing = navigationState.getBearing();
-		}
-		
-		vehicle.setLocation(location);
-		vehicle.setHeading((float)bearing);
-		map.update();
+		vehicle.setPosition(navigationState.isOnPath() ?
+				new Position(navigationState.getLocationOnPath(), navigationState.getBearingOnPath()) :
+				new Position(navigationState.getLocation(), navigationState.getBearing()));
 	}
 	
 	private void endNavigation() {

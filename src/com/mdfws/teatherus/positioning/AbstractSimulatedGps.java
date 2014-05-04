@@ -7,7 +7,7 @@ import com.mdfws.teatherus.util.LatLngUtil;
 
 public abstract class AbstractSimulatedGps extends AbstractGps {
 	
-	protected Position currentPosition;
+	protected GpsPosition currentPosition;
 	
 	protected final int TICK_MS = 500;
 	
@@ -17,7 +17,7 @@ public abstract class AbstractSimulatedGps extends AbstractGps {
 	private final double S_TO_MS = 1000;
 	
 	public AbstractSimulatedGps(LatLng location) {
-		currentPosition = new Position(location, 0, System.currentTimeMillis());
+		currentPosition = new GpsPosition(location, 0, System.currentTimeMillis());
 	}
 	
 	public abstract void followPath(final List<LatLng> path);
@@ -61,7 +61,7 @@ public abstract class AbstractSimulatedGps extends AbstractGps {
 			}
 		}
 		
-		currentPosition = new Position(currentLocation, currentBearing, newTime);
+		currentPosition = new GpsPosition(currentLocation, currentBearing, newTime);
 	}
 
 }

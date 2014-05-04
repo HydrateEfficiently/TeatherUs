@@ -16,7 +16,7 @@ public class SimulatedGps extends AbstractSimulatedGps {
 
 			@Override
 			protected Void doInBackground(Void... params) {
-				currentPosition = new Position(currentPosition.location, 0, System.currentTimeMillis());
+				currentPosition = new GpsPosition(currentPosition.location, 0, System.currentTimeMillis());
 				publishProgress();
 				while (path.size() > 0) {
 					advancePosition(path);

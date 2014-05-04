@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_fragment"
     android:layout_width="match_parent"
@@ -8,9 +8,13 @@
     tools:context=".NavigationFragment" >
     
     	<fragment
-	        android:id="@+id/main_map_view"
+	        android:id="@+id/map_fragment"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        class="com.google.android.gms.maps.MapFragment" />
+    	<com.mdfws.teatherus.MapEventsListener
+    	    android:id="@+id/map_events_listener_view"
+    	    android:layout_width="match_parent"
+	        android:layout_height="match_parent" />
     
-   </LinearLayout>
+</FrameLayout>

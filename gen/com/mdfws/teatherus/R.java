@@ -214,13 +214,14 @@ containing a value of this type.
         public static final int vehicle=0x7f02001f;
     }
     public static final class id {
-        public static final int demo_navigation_fragment=0x7f05000b;
-        public static final int demo_navigation_fragment_container=0x7f05000a;
+        public static final int demo_navigation_fragment=0x7f05000c;
+        public static final int demo_navigation_fragment_container=0x7f05000b;
         public static final int directions_fragment=0x7f050007;
         public static final int fragment_layout=0x7f050005;
         public static final int hybrid=0x7f050004;
-        public static final int main_map_view=0x7f050006;
-        public static final int navigation_activity_navigation_fragment=0x7f050009;
+        public static final int map_events_listener_view=0x7f050009;
+        public static final int map_fragment=0x7f050006;
+        public static final int navigation_activity_navigation_fragment=0x7f05000a;
         public static final int navigation_fragment=0x7f050008;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;

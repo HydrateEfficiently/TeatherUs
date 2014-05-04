@@ -6,7 +6,6 @@ import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailed
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.mdfws.teatherus.NavigatorEvents.UpdateEventArgs;
 import com.mdfws.teatherus.directions.Direction;
 import com.mdfws.teatherus.positioning.Gps;
 import com.mdfws.teatherus.positioning.IGps;
@@ -57,8 +56,9 @@ public class NavigationFragment extends Fragment implements
 	public void onStart() {
 		parent = getActivity();
 		parent.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.main_map_view);
-		map = new NavigationMap(mapFragment, options.mapOptions());
+		MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map_fragment);
+		MapEventsListener mapEventsListener = (MapEventsListener)getView().getRootView().findViewById(R.id.map_events_listener_view);
+		map = new NavigationMap(mapFragment, mapEventsListener, options.mapOptions());
 		locationClient = new LocationClient(parent, this, this);
 		locationClient.connect();
 		super.onStart();

@@ -2,6 +2,7 @@ package com.mdfws.teatherus;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.graphics.Point;
 import android.view.View;
 
@@ -18,6 +19,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.mdfws.teatherus.MapEventsListener.OnTouchEventHandler;
+import com.mdfws.teatherus.positioning.Position;
 import com.mdfws.teatherus.util.PointD;
 
 public class NavigationMap {
@@ -38,27 +41,31 @@ public class NavigationMap {
 	private CameraPositionFactory cameraPositionFactory;
 	private UiSettings mapUiSettings;
 	
-	private LatLng location;
-	private float bearing;
+	private LatLng vehicleLocation;
+	private float vehicleBearing;
 	private PointD anchor;
 	private Marker vehicleMarker;
 	private Polyline polylinePath;
 	private MapMode mapMode;
 	
-	public NavigationMap(MapFragment mapFragment, NavigationMapOptions options) {
+	private boolean trackLocation = true;
+	
+	public NavigationMap(MapFragment mapFragment, MapEventsListener mapEventsListener, NavigationMapOptions options) {
 		this.mapFragment = mapFragment;
 		map = mapFragment.getMap();
 		cameraPositionFactory = new CameraPositionFactory(map);
-		location = options.location();
+		vehicleLocation = options.location();
 		anchor = options.anchor();
-		initialiseUiSettings();		
-		map.setMyLocationEnabled(true);
-		map.setOnMyLocationButtonClickListener(new OnMyLocationButtonClickListener() {
+		
+		mapEventsListener.setOnTouchEventHandler(new OnTouchEventHandler() {
 			@Override
-			public boolean onMyLocationButtonClick() {
-				return false;
+			public void invoke() {
+				trackLocation = false;		
 			}
 		});
+		
+		initialiseUiSettings();
+		initialiseLocationButtonInteractions();
 	}
 	
 	private void initialiseUiSettings() {
@@ -68,10 +75,25 @@ public class NavigationMap {
 		mapUiSettings.setRotateGesturesEnabled(false);
 	}
 	
+	private void initialiseLocationButtonInteractions() {
+		map.setMyLocationEnabled(true);
+		map.setOnMyLocationButtonClickListener(new OnMyLocationButtonClickListener() {
+			@Override
+			public boolean onMyLocationButtonClick() {
+				if (mapMode == MapMode.NAVIGATING) {
+					trackLocation = true;
+					setCameraPositionNavigatingDefault();
+					return true;
+				}
+				return false;
+			}
+		});
+	}
+
 	public Marker addVehicleMarker(Vehicle vehicle) {
 		removeVehicleMarker();
 		vehicleMarker = map.addMarker(new MarkerOptions()
-				.position(vehicle.getLocation())
+				.position(vehicle.getPosition().location)
 				.icon(BitmapDescriptorFactory.fromBitmap(vehicle.getImage()))
 				.flat(true));
 		anchor = vehicle.getAnchor();
@@ -97,11 +119,23 @@ public class NavigationMap {
 	}
 	
 	public void setMapMode(MapMode mode) {
+		mapMode = mode;
 		boolean isNavigating = mode == MapMode.NAVIGATING;
 		mapUiSettings.setTiltGesturesEnabled(isNavigating);
-		CameraPosition defaultPosition = isNavigating ?
-				cameraPositionFactory.newCameraPosition(NAVIGATING_ZOOM, NAVIGATING_TILT, bearing) :
-				cameraPositionFactory.newCameraPosition(IDLE_ZOOM, IDLE_TILT, IDLE_BEARING);
+		if (isNavigating) {
+			setCameraPositionNavigatingDefault();
+		} else {
+			setCameraPositionIdleDefault();
+		}
+	}
+	
+	private void setCameraPositionNavigatingDefault() {
+		CameraPosition defaultPosition = cameraPositionFactory.newCameraPosition(NAVIGATING_ZOOM, NAVIGATING_TILT, vehicleBearing);
+		map.moveCamera(CameraUpdateFactory.newCameraPosition(defaultPosition));
+	}
+	
+	private void setCameraPositionIdleDefault() {
+		CameraPosition defaultPosition = cameraPositionFactory.newCameraPosition(IDLE_ZOOM, IDLE_TILT, IDLE_BEARING);
 		map.moveCamera(CameraUpdateFactory.newCameraPosition(defaultPosition));
 	}
 	
@@ -110,36 +144,27 @@ public class NavigationMap {
 		return new Point(mapView.getMeasuredWidth(), mapView.getMeasuredHeight());
 	}
 	
-	public LatLng getLocation() {
-		return location;
+	public void setVehiclePosition(Position position) {
+		vehicleLocation = getOffsetLocation(position.location);
+		vehicleBearing = (float)position.bearing;
+		if (trackLocation) {
+			map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPositionFactory.newCameraPosition(vehicleLocation, vehicleBearing)));
+		}
 	}
 	
-	public void setLocation(LatLng location) {
+	private LatLng getOffsetLocation(LatLng location) {
 		Point size = getSize();
 		PointD anchorOffset = new PointD(size.x * (0.5 - anchor.x), size.y * (0.5 - anchor.y));
 		PointD screenCenterWorldXY = SphericalMercatorProjection.latLngToWorldXY(location, getZoom());
 		PointD newScreenCenterWorldXY = new PointD(screenCenterWorldXY.x + anchorOffset.x, screenCenterWorldXY.y + anchorOffset.y);
-		newScreenCenterWorldXY.rotate(screenCenterWorldXY, bearing);
-		LatLng offsetLocation = SphericalMercatorProjection.worldXYToLatLng(newScreenCenterWorldXY, getZoom());
-		this.location = offsetLocation;
-	}
-	
-	public double getBearing() {
-		return bearing;
-	}
-	
-	public void setBearing(float bearing) {
-		this.bearing = bearing;
+		newScreenCenterWorldXY.rotate(screenCenterWorldXY, vehicleBearing);
+		return SphericalMercatorProjection.worldXYToLatLng(newScreenCenterWorldXY, getZoom());
 	}
 	
 	public float getZoom() {
 		return map.getCameraPosition().zoom;
 	}
-	
-	public void update() {
-		map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPositionFactory.newCameraPosition(location, bearing)));
-	}
-	
+
 	public void setOnCameraChangeListener(OnCameraChangeListener listener) {
 		map.setOnCameraChangeListener(listener);
 	}

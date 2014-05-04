@@ -3,20 +3,21 @@ package com.mdfws.teatherus;
 import android.graphics.Bitmap;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.mdfws.teatherus.positioning.Position;
 import com.mdfws.teatherus.util.PointD;
 
 public class VehicleOptions {
-	private LatLng location;
+	private Position position = new Position(Defaults.LOCATION, 0);
 	private Bitmap image;
 	private PointD anchor = new PointD(0.5d, 0.9d);
 	
-	public VehicleOptions location(LatLng location) {
-		this.location = location;
+	public VehicleOptions position(Position position) {
+		this.position = position;
 		return this;
 	}
 	
-	public LatLng location() {
-		return location;
+	public Position position() {
+		return position;
 	}
 	
 	public VehicleOptions image(Bitmap image) {
