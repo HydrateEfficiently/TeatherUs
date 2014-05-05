@@ -2,7 +2,6 @@ package com.mdfws.teatherus;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.graphics.Point;
 import android.view.View;
 
@@ -60,7 +59,7 @@ public class NavigationMap {
 		mapEventsListener.setOnTouchEventHandler(new OnTouchEventHandler() {
 			@Override
 			public void invoke() {
-				trackLocation = false;		
+				setTrackLocationEnabled(false);		
 			}
 		});
 		
@@ -76,12 +75,11 @@ public class NavigationMap {
 	}
 	
 	private void initialiseLocationButtonInteractions() {
-		map.setMyLocationEnabled(true);
 		map.setOnMyLocationButtonClickListener(new OnMyLocationButtonClickListener() {
 			@Override
 			public boolean onMyLocationButtonClick() {
 				if (mapMode == MapMode.NAVIGATING) {
-					trackLocation = true;
+					setTrackLocationEnabled(true);
 					setCameraPositionNavigatingDefault();
 					return true;
 				}
@@ -89,13 +87,19 @@ public class NavigationMap {
 			}
 		});
 	}
+	
+	private void setTrackLocationEnabled(boolean enabled) {
+		trackLocation = enabled;
+		map.setMyLocationEnabled(!enabled);
+	}
 
 	public Marker addVehicleMarker(Vehicle vehicle) {
 		removeVehicleMarker();
 		vehicleMarker = map.addMarker(new MarkerOptions()
 				.position(vehicle.getPosition().location)
 				.icon(BitmapDescriptorFactory.fromBitmap(vehicle.getImage()))
-				.flat(true));
+				.flat(true)
+				.anchor(0.5f, 0.5f));
 		anchor = vehicle.getAnchor();
 		return vehicleMarker;
 	}

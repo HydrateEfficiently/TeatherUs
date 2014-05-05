@@ -1,9 +1,6 @@
 package com.mdfws.teatherus;
 
 import android.graphics.Bitmap;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.mdfws.teatherus.positioning.Position;
 import com.mdfws.teatherus.util.PointD;
